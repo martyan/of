@@ -3,19 +3,21 @@ const functions = require('firebase-functions')
 const nodemailer = require('nodemailer')
 const next = require('next')
 const admin = require('firebase-admin')
+const express = require('express')()
 const routes = require('./routes')
 admin.initializeApp()
 
 const dev = process.env.NODE_ENV !== 'production'
 const conf = {distDir: `${path.relative(process.cwd(), __dirname)}/next`}
 const app = next({dev, conf})
-const handle = routes.getRequestHandler(app)
+const handler = routes.getRequestHandler(app)
 
-exports.next = functions.https.onRequest((req, res) => {
+express.get('*', (req, res) => {
     console.log('File: ' + req.originalUrl) // log the page.js file that is being requested
-    return app.prepare().then(() => handle(req, res))
+    app.prepare().then(() => handler(req, res))
 })
 
+exports.next = functions.https.onRequest(express)
 
 /*
 const gmailEmail = functions.config().gmail.email
