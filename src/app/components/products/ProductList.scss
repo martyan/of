@@ -33,6 +33,7 @@
         .filter {
 
             flex: 1;
+            justify-content: center;
             display: flex;
             align-items: center;
             font-size: .95em;
@@ -44,6 +45,10 @@
             @media (min-width: $tablet) {
                 justify-content: center;
                 padding: 15px;
+            }
+
+            span {
+                flex-basis: 100px;
             }
 
         }
