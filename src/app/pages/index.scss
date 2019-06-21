@@ -1,0 +1,17 @@
+@import '../components/common/global';
+@import '../components/common/variables';
+@import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css');
+
+.index {
+
+    min-height: 100vh;
+    padding-bottom: 100px;
+    position: relative;
+
+    .slick-dots {
+        bottom: 10px;
+        opacity: .7;
+    }
+
+}

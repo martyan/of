@@ -1,0 +1,30 @@
+@import './variables';
+
+.text-input {
+
+    margin: 0 0 15px;
+
+    input {
+
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background: white;
+        border: 1px solid #222;
+        color: #222;
+        line-height: 20px;
+        font-weight: 300;
+
+        &::placeholder {
+            color: #888;
+        }
+
+    }
+
+    .error {
+        color: indianred;
+        padding: 5px;
+        font-size: .95em;
+    }
+
+}
