@@ -3,7 +3,12 @@ const autoprefixer = require('autoprefixer')
 module.exports = {
     plugins: [
         autoprefixer({
-            browsers: ['> 1%', 'last 4 versions']
+            "overrideBrowserslist": [
+                "last 4 versions",
+                "> 1%",
+                "maintained node versions",
+                "not dead"
+            ]
         })
     ]
 }
