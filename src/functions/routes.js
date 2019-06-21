@@ -1,7 +1,8 @@
-const routes = module.exports = require('next-routes')()
+const nextRoutes = require('next-routes')
+const routes = module.exports = nextRoutes()
 
 routes
-    .add('index')
+    .add('index', '/')
     .add('shop')
     .add('blog')
     .add('cart')
