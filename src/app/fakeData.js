@@ -1,10 +1,3 @@
-import cover from './static/img/cover.jpg'
-import cover2 from './static/img/cover2.jpg'
-import cover3 from './static/img/cover3.jpg'
-import cover4 from './static/img/cover4.jpg'
-import cover5 from './static/img/cover5.jpg'
-import cover6 from './static/img/cover6.jpg'
-
 const quantity = {
     s: 0,
     m: 2,
@@ -23,13 +16,13 @@ export const imgs = [
     'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/products%2Fproduct_a.jpg?alt=media'
 ]
 
-export const blogImgs = [
-    cover,
-    cover2,
-    cover3,
-    cover4,
-    cover5,
-    cover6
+export const coverImgs = [
+    'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/covers%2Fcover.jpg?alt=media',
+    'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/covers%2Fcover2.jpg?alt=media',
+    'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/covers%2Fcover3.jpg?alt=media',
+    'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/covers%2Fcover4.jpg?alt=media',
+    'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/covers%2Fcover5.jpg?alt=media',
+    'https://firebasestorage.googleapis.com/v0/b/old-felony.appspot.com/o/covers%2Fcover6.jpg?alt=media'
 ]
 
 export const products = [

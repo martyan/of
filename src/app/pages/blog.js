@@ -10,7 +10,7 @@ import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Gallery from 'react-photo-gallery'
-import { blogImgs, imgs } from '../fakeData'
+import { coverImgs } from '../fakeData'
 import CustomGalleryItem from '../components/CustomGalleryItem'
 import './blog.scss'
 
@@ -27,7 +27,7 @@ class Blog extends React.Component {
     }
 
     render = () => {
-        const photos = blogImgs.map(img => ({
+        const photos = coverImgs.map(img => ({
             src: img,
             width: 1021,
             height: 755
