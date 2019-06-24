@@ -6,4 +6,5 @@ routes
     .add('blog')
     .add('cart')
     .add('product', '/product/:id')
+    .add('admin')
     .add('user')

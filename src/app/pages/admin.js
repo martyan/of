@@ -7,21 +7,21 @@ import { bindActionCreators } from 'redux'
 import { getProducts } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
-import { Router } from '../../functions/routes'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
+import AddProduct from '../components/products/AddProduct'
+import DNDList from '../components/DNDList'
 import './cart.scss'
 
-class Cart extends React.Component {
+class Admin extends React.Component {
 
     static propTypes = {
         getProducts: PropTypes.func.isRequired,
         products: PropTypes.arrayOf(PropTypes.object).isRequired,
-        signOut: PropTypes.func.isRequired,
         user: PropTypes.object
     }
 
@@ -32,16 +32,20 @@ class Cart extends React.Component {
 
     state = {
         signInVisible: false,
-        createAccountVisible: false
+        createAccountVisible: false,
+        addProductVisible: false,
+        imgMGMTVisible: false,
+        editProductVisible: false,
+        productId: null
     }
 
     render = () => {
-        const { user, signOut } = this.props
-        const { signInVisible, createAccountVisible } = this.state
+        const { products } = this.props
+        const { signInVisible, createAccountVisible, addProductVisible, imgMGMTVisible, editProductVisible } = this.state
 
         return (
             <PageWrapper>
-                <div className="cart">
+                <div className="admin">
 
                     <Head>
                         <meta name="description" content="Minimalistic serverless boilerplate based on NextJS and Firebase" />
@@ -51,19 +55,31 @@ class Cart extends React.Component {
 
                     <Header />
 
-                    {!user ? (
+                    <div>
+                        <button onClick={() => this.setState({addProductVisible: true})}>Add product</button>
+
                         <div>
-                            <button onClick={() => this.setState({signInVisible: true})}>Log in</button>
-                            <button onClick={() => this.setState({createAccountVisible: true})}>Create account</button>
+                            <DNDList
+                                items={products}
+                                onEdit={productId => this.setState({editProductVisible: true, productId})}
+                                onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}
+                            />
                         </div>
-                    ) : (
-                        <div>
-                            <button onClick={() => Router.push('/admin')}>Manage products</button>
-                            <button onClick={() => signOut().catch(console.error)}>Sign out</button>
-                        </div>
-                    )}
+                    </div>
 
                     <Footer />
+
+                    <Modal visible={editProductVisible} onClose={() => this.setState({editProductVisible: false})}>
+                        <div>edit product</div>
+                    </Modal>
+
+                    <Modal visible={imgMGMTVisible} onClose={() => this.setState({imgMGMTVisible: false})}>
+                        <div>imgMGMT product</div>
+                    </Modal>
+
+                    <Modal noPadding visible={addProductVisible} onClose={() => this.setState({addProductVisible: false})}>
+                        <AddProduct close={() => this.setState({addProductVisible: false})} />
+                    </Modal>
 
                     <Modal noPadding visible={signInVisible} onClose={() => this.setState({signInVisible: false})}>
                         <SignIn close={() => this.setState({signInVisible: false})} />
@@ -90,4 +106,4 @@ const mapDispatchToProps = (dispatch) => (
     }, dispatch)
 )
 
-export default compose(withAuthentication(false), connect(mapStateToProps, mapDispatchToProps))(Cart)
+export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(Admin)
