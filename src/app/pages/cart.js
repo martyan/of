@@ -14,6 +14,7 @@ import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
 import AddProduct from '../components/products/AddProduct'
+import DNDList from '../components/DNDList'
 import './cart.scss'
 
 class Cart extends React.Component {
@@ -33,12 +34,15 @@ class Cart extends React.Component {
     state = {
         signInVisible: false,
         createAccountVisible: false,
-        addProductVisible: false
+        addProductVisible: false,
+        imgMGMTVisible: false,
+        editProductVisible: false,
+        productId: null
     }
 
     render = () => {
         const { user, products, signOut } = this.props
-        const { signInVisible, createAccountVisible, addProductVisible } = this.state
+        const { signInVisible, createAccountVisible, addProductVisible, imgMGMTVisible, editProductVisible } = this.state
 
         return (
             <PageWrapper>
@@ -63,19 +67,24 @@ class Cart extends React.Component {
                             <button onClick={() => signOut().catch(console.error)}>Sign out</button>
 
                             <div>
-
-                                {products.map(product => (
-                                    <div key={product.id}>
-                                        <div>{product.name}</div>
-                                        <div>{product.category}</div>
-                                    </div>
-                                ))}
-
+                                <DNDList
+                                    items={products}
+                                    onEdit={productId => this.setState({editProductVisible: true, productId})}
+                                    onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}
+                                />
                             </div>
                         </div>
                     )}
 
                     <Footer />
+
+                    <Modal visible={editProductVisible} onClose={() => this.setState({editProductVisible: false})}>
+                        <div>edit product</div>
+                    </Modal>
+
+                    <Modal visible={imgMGMTVisible} onClose={() => this.setState({imgMGMTVisible: false})}>
+                        <div>imgMGMT product</div>
+                    </Modal>
 
                     <Modal noPadding visible={addProductVisible} onClose={() => this.setState({addProductVisible: false})}>
                         <AddProduct close={() => this.setState({addProductVisible: false})} />
