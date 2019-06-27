@@ -28,7 +28,7 @@ const getSizes = (category) => {
 class AddProduct extends Component {
 
     static propTypes = {
-        createProduct: PropTypes.func.isRequired
+        close: PropTypes.func.isRequired
     }
 
     state = {
@@ -37,7 +37,7 @@ class AddProduct extends Component {
         name: '',
         description: '',
         quantity: {},
-        gender: 'men',
+        gender: '',
         price: '',
         nameError: '',
         priceError: '',
@@ -85,7 +85,8 @@ class AddProduct extends Component {
             description,
             quantity,
             gender,
-            price: parseInt(price)
+            price: parseInt(price),
+            photos: []
         }
 
         if(this.isFormValid()) {
@@ -157,15 +158,17 @@ class AddProduct extends Component {
                         <Gender type="button" onClick={() => this.setState({gender: 'uni'})} selected={gender === 'uni'}>UNI</Gender>
                     </div>
 
-                    <Select
-                        options={options}
-                        value={category}
-                        onChange={this.handleCategoryChange}
-                        placeholder="Select category"
-                        className="category"
-                        classNamePrefix="category-select"
-                        isSearchable={false}
-                    />
+                    {gender !== '' && (
+                        <Select
+                            options={options}
+                            value={category}
+                            onChange={this.handleCategoryChange}
+                            placeholder="Select category"
+                            className="category"
+                            classNamePrefix="category-select"
+                            isSearchable={false}
+                        />
+                    )}
 
                     {category !== '' && (
                         <>
@@ -184,7 +187,20 @@ class AddProduct extends Component {
                                 onChange={e => this.setState({description: e.target.value})}
                             />
 
+                            <TextInput
+                                type="number"
+                                placeholder="Price (CZK)"
+                                value={price}
+                                onChange={price => this.setState({price})}
+                                error={submitted ? priceError : ''}
+                                validate={value => this.validateInput('price', value)}
+                                min={0}
+                                max={99999}
+                                style={{marginBottom: '30px'}}
+                            />
+
                             <Sizes>
+                                <p>Stock</p>
                                 {sizes.map(size => (
                                     <Size key={size.value} highlighted={quantity[size.value] > 0}>
                                         <label>{size.label}</label>
@@ -202,18 +218,6 @@ class AddProduct extends Component {
                                 ))}
                             </Sizes>
 
-                            <TextInput
-                                type="number"
-                                placeholder="Price"
-                                value={price}
-                                onChange={price => this.setState({price})}
-                                error={submitted ? priceError : ''}
-                                validate={value => this.validateInput('price', value)}
-                                min={0}
-                                max={99999}
-                                style={{marginBottom: '50px'}}
-                            />
-
                             <Button loading={loading} style={{marginBottom: 0}}>Add product</Button>
                         </>
                     )}
@@ -221,48 +225,48 @@ class AddProduct extends Component {
 
                 <style jsx global>{`
                      .category {
-                        margin-bottom: 20px;
+                        margin-bottom: 20px !important;
                      }
                      .category-select__control {
-                        border-color: #222;
-                        border-radius: 0;
-                        box-shadow: none;
+                        border-color: #222 !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
                      }
                      .category-select__control:hover {
-                        border-color: #222;
+                        border-color: #222 !important;
                      }
                      .category-select__option {
-                        font-weight: 300;
-                        color: #222;
-                        font-size: .95em;
+                        font-weight: 300 !important;
+                        color: #222 !important;
+                        font-size: .95em !important;
                      }
                      .category-select__option:active {
-                        background: #222;
-                        color: white;
+                        background: #222 !important;
+                        color: white !important;
                      }
                      .category-select__option--is-focused {
-                        background: #eee;
+                        background: #eee !important;
                      }
                      .category-select__indicator-separator {
-                        background-color: #222;
+                        background-color: #222 !important;
                      }
                      .category-select__placeholder {
-                        color: #222;
-                        font-weight: 300;
-                        font-size: .95em;
+                        color: #222 !important;
+                        font-weight: 300 !important;
+                        font-size: .95em !important;
                      }
                      .category-select__indicator, .category-select__indicator:hover {
-                        color: #222;
+                        color: #222 !important;
                      }
                      .category-select__single-value {
-                        font-weight: 300;
+                        font-weight: 300 !important;
                      }
                      .category-select__menu {
-                        border-radius: 0;
+                        border-radius: 0 !important;
                      }
                      .category-select__option--is-selected {
-                        background-color: #222;
-                        color: white;
+                        background-color: #222 !important;
+                        color: white !important;
                      }
                 `}</style>
             </Wrapper>
@@ -337,13 +341,18 @@ const Gender = styled.button`
 `
 
 const Sizes = styled.div`
-    margin-bottom: 20px;
+    margin-bottom: 50px;
+    
+    p {
+        font-weight: 300;
+        color: #222;
+    }
 `
 
 const Size = styled.div`
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
+    margin: 10px;
     
     label {
         flex-basis: 28px;
