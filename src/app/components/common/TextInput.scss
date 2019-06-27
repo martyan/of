@@ -19,6 +19,16 @@
             color: #888;
         }
 
+        &[type='number']{
+
+            text-align: center;
+
+            &::placeholder {
+                text-align: left;
+            }
+
+        }
+
     }
 
     .error {
