@@ -15,6 +15,7 @@ import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
 import './cart.scss'
+import Button from '../components/common/Button'
 
 class Cart extends React.Component {
 
@@ -51,17 +52,19 @@ class Cart extends React.Component {
 
                     <Header />
 
-                    {!user ? (
-                        <div>
-                            <button onClick={() => this.setState({signInVisible: true})}>Log in</button>
-                            <button onClick={() => this.setState({createAccountVisible: true})}>Create account</button>
-                        </div>
-                    ) : (
-                        <div>
-                            <button onClick={() => Router.push('/admin')}>Manage products</button>
-                            <button onClick={() => signOut().catch(console.error)}>Sign out</button>
-                        </div>
-                    )}
+                    <div className="inner">
+                        {!user ? (
+                            <>
+                                <Button onClick={() => this.setState({createAccountVisible: true})}>Create account</Button>
+                                <Button onClick={() => this.setState({signInVisible: true})}>Log in</Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button onClick={() => Router.push('/admin')}>Manage products</Button>
+                                <Button onClick={() => signOut().catch(console.error)}>Sign out</Button>
+                            </>
+                        )}
+                    </div>
 
                     <Footer />
 
