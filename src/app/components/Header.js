@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Link from 'next/link'
-import Router from 'next/router'
+import { Router } from '../../functions/routes'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { signOut } from '../lib/auth/actions'

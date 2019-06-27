@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactGA from 'react-ga'
-import Router from 'next/router'
+import { Router } from '../../functions/routes'
 
 const debug = process.env.NODE_ENV !== 'production'
 
