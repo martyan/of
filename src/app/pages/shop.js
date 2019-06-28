@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getTodos } from '../lib/todo/actions'
+import { getProducts } from '../lib/shop/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
@@ -15,16 +15,19 @@ import './shop.scss'
 class Shop extends React.Component {
 
     static propTypes = {
-        getTodos: PropTypes.func.isRequired,
+        getProducts: PropTypes.func.isRequired,
+        products: PropTypes.arrayOf(PropTypes.object).isRequired,
         user: PropTypes.object
     }
 
     static getInitialProps = async ({ store }) => {
-        await store.dispatch(getTodos())
+        await store.dispatch(getProducts())
         return {}
     }
 
     render = () => {
+        const { products } = this.props
+
         return (
             <PageWrapper>
                 <div className="shop">
@@ -37,7 +40,7 @@ class Shop extends React.Component {
 
                     <Header />
 
-                    <ProductList />
+                    <ProductList products={products} />
 
                     <Footer />
 
@@ -48,12 +51,13 @@ class Shop extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    user: state.auth.user
+    user: state.auth.user,
+    products: state.shop.products
 })
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
-        getTodos
+        getProducts
     }, dispatch)
 )
 

@@ -6,23 +6,23 @@ import { bindActionCreators } from 'redux'
 import { setFilter } from '../../lib/shop/actions'
 import FlipMove from 'react-flip-move'
 import Check from '../common/Check'
-import { products } from '../../fakeData'
 import './ProductList.scss'
 
 class ProductList extends Component {
 
     static propTypes = {
+        products: PropTypes.arrayOf(PropTypes.object).isRequired,
         setFilter: PropTypes.func.isRequired
     }
 
     filterProduct = (product) => {
         const { men, women, tshirt, sweatshirt } = this.props.filters
 
-        const isMen = men && product.gender === 'male'
-        const isWomen = women && product.gender === 'female'
+        const isMen = men && product.gender === 'men'
+        const isWomen = women && product.gender === 'women'
 
-        const isTshirt = tshirt && product.type === 'tshirt'
-        const isSweatshirt = sweatshirt && product.type === 'sweatshirt'
+        const isTshirt = tshirt && product.category === 'tshirt'
+        const isSweatshirt = sweatshirt && product.category === 'sweatshirt'
 
         return (isMen || isWomen) && (isTshirt || isSweatshirt)
     }
@@ -39,6 +39,7 @@ class ProductList extends Component {
     }
 
     render = () => {
+        const { products } = this.props
         const { men, women, tshirt, sweatshirt } = this.props.filters
 
         const filtered = products.filter(this.filterProduct)
@@ -76,7 +77,10 @@ class ProductList extends Component {
                         {filtered.map(product => (
                             <div key={product.id} className="product" onClick={() => this.handleProductClick(product.id)}>
                                 <div className="photo">
-                                    <img src={product.img} alt={product.name}/>
+                                    {product.photos.length > 0 ?
+                                        <img src={product.photos[0]} alt={product.name} /> :
+                                        <img src="https://via.placeholder.com/900x1146/eee" />
+                                    }
                                 </div>
                                 <div className="caption">
                                     <div className="name">{product.name}</div>

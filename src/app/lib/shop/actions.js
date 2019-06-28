@@ -16,6 +16,16 @@ export const createProduct = (product) => ({
     payload: db.collection('products').add(product)
 })
 
+export const updateProduct = (productId, product) => ({
+    type: 'UPDATE_PRODUCT',
+    payload: db.collection('products').doc(productId).update(product)
+})
+
+export const deleteProduct = (productId) => ({
+    type: 'DELETE_PRODUCT',
+    payload: db.collection('products').doc(productId).delete()
+})
+
 export const getProducts = () => ({
     type: 'GET_PRODUCTS',
     payload: db.collection('products')/*.orderBy('createdAt', 'desc')*/.get()

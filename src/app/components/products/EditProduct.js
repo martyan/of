@@ -3,36 +3,27 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import styled from 'styled-components'
-import { createProduct } from '../../lib/shop/actions'
+import { createProduct, updateProduct, getProducts } from '../../lib/shop/actions'
 import Select from 'react-select'
 import Button from '../common/Button'
 import TextInput from '../common/TextInput'
+import { getSizes } from './Stock'
 
-const getSizes = (category) => {
-    switch(category) {
-        case 'tshirt':
-        case 'sweatshirt':
-            return [
-                {value: 's', label: 'S'},
-                {value: 'm', label: 'M'},
-                {value: 'L', label: 'L'},
-                {value: 'XL', label: 'XL'}
-            ]
-        case 'skateboard':
-            return [{value: 'eight', label: '8"'}]
-        default:
-            return []
-    }
-}
 
-class AddProduct extends Component {
+const getCategoryOptions = () => [
+    { value: 'tshirt', label: 'T-shirt' },
+    { value: 'sweatshirt', label: 'Sweatshirt' },
+    { value: 'skateboard', label: 'Skate deck' }
+]
+
+class EditProduct extends Component {
 
     static propTypes = {
-        close: PropTypes.func.isRequired
+        close: PropTypes.func.isRequired,
+        product: PropTypes.object
     }
 
     state = {
-        id: '',
         category: '',
         name: '',
         description: '',
@@ -44,6 +35,23 @@ class AddProduct extends Component {
         serverError: '',
         submitted: false,
         loading: false,
+    }
+
+    componentDidMount() {
+        if(this.isEditing()) this.loadForm()
+    }
+
+    loadForm = () => {
+        const { category, name, description, quantity, gender, price } = this.props.product
+
+        this.setState({
+            category: getCategoryOptions().find(option => option.value === category),
+            name,
+            description,
+            quantity,
+            gender,
+            price: String(price)
+        })
     }
 
     handleCategoryChange = (category) => {
@@ -71,28 +79,40 @@ class AddProduct extends Component {
         })
     }
 
+    isEditing = () => !!this.props.product
+
     handleSubmit = (e) => {
         e.preventDefault()
-        const { createProduct, close } = this.props
-        const { id, category, name, description, quantity, gender, price } = this.state
+        const { createProduct, updateProduct, getProducts, close, product } = this.props
+        const { category, name, description, quantity, gender, price } = this.state
 
         this.setState({submitted: true})
 
-        const product = {
-            id,
-            category: category.value,
+        const data = {
             name,
             description,
             quantity,
             gender,
-            price: parseInt(price),
-            photos: []
+            price: parseInt(price)
+        }
+
+        if(!this.isEditing()) {
+            data.category = category.value
+            data.photos = []
         }
 
         if(this.isFormValid()) {
             this.setState({ loading: true })
 
-            createProduct(product)
+            if(this.isEditing()) {
+                return updateProduct(product.id, data)
+                    .then(getProducts)
+                    .then(close)
+                    .catch(this.handleError)
+            }
+
+            return createProduct(data)
+                .then(getProducts)
                 .then(close)
                 .catch(this.handleError)
         }
@@ -137,20 +157,20 @@ class AddProduct extends Component {
     }
 
     render = () => {
+        const { product } = this.props
         const { category, name, description, quantity, gender, price, nameError, priceError, loading, submitted } = this.state
 
-        const options = [
-            { value: 'tshirt', label: 'T-shirt' },
-            { value: 'sweatshirt', label: 'Sweatshirt' },
-            { value: 'skateboard', label: 'Skate deck' }
-        ]
+        const categoryOptions = getCategoryOptions()
 
         const sizes = getSizes(category.value)
+
+        const isGenderSet = gender !== ''
+        const isCategorySet = category !== ''
 
         return (
             <Wrapper>
                 <Form onSubmit={this.handleSubmit}>
-                    <h1>Add product</h1>
+                    <h1>{product ? 'Edit product' : 'Add product'}</h1>
 
                     <div>
                         <Gender type="button" onClick={() => this.setState({gender: 'men'})} selected={gender === 'men'}>Men</Gender>
@@ -158,9 +178,9 @@ class AddProduct extends Component {
                         <Gender type="button" onClick={() => this.setState({gender: 'uni'})} selected={gender === 'uni'}>UNI</Gender>
                     </div>
 
-                    {gender !== '' && (
+                    {(isGenderSet && !this.isEditing()) && (  //we don't want to change category when editing because it would change the stock
                         <Select
-                            options={options}
+                            options={categoryOptions}
                             value={category}
                             onChange={this.handleCategoryChange}
                             placeholder="Select category"
@@ -170,7 +190,7 @@ class AddProduct extends Component {
                         />
                     )}
 
-                    {category !== '' && (
+                    {isCategorySet && (
                         <>
                             <TextInput
                                 type="text"
@@ -187,38 +207,43 @@ class AddProduct extends Component {
                                 onChange={e => this.setState({description: e.target.value})}
                             />
 
-                            <TextInput
-                                type="number"
-                                placeholder="Price (CZK)"
-                                value={price}
-                                onChange={price => this.setState({price})}
-                                error={submitted ? priceError : ''}
-                                validate={value => this.validateInput('price', value)}
-                                min={0}
-                                max={99999}
-                                style={{marginBottom: '30px'}}
-                            />
+                            <Price>
+                                <div className="label">CZK</div>
+                                <TextInput
+                                    type="number"
+                                    placeholder="Price"
+                                    value={price}
+                                    onChange={price => this.setState({price})}
+                                    error={submitted ? priceError : ''}
+                                    validate={value => this.validateInput('price', value)}
+                                    min={0}
+                                    max={99999}
+                                    style={{marginBottom: '30px'}}
+                                />
+                            </Price>
 
-                            <Sizes>
-                                <p>Stock</p>
-                                {sizes.map(size => (
-                                    <Size key={size.value} highlighted={quantity[size.value] > 0}>
-                                        <label>{size.label}</label>
-                                        <div>
-                                            <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
-                                            <input
-                                                type="number"
-                                                value={quantity[size.value]}
-                                                onChange={e => this.handleQuantityChange(size.value, e.target.value)}
-                                                min={0}
-                                            />
-                                            <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
-                                        </div>
-                                    </Size>
-                                ))}
-                            </Sizes>
+                            {!this.isEditing && (
+                                <Sizes>
+                                    <p>Stock</p>
+                                    {sizes.map(size => (
+                                        <Size key={size.value} highlighted={quantity[size.value] > 0}>
+                                            <label>{size.label}</label>
+                                            <div>
+                                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
+                                                <input
+                                                    type="number"
+                                                    value={quantity[size.value]}
+                                                    onChange={e => this.handleQuantityChange(size.value, e.target.value)}
+                                                    min={0}
+                                                />
+                                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
+                                            </div>
+                                        </Size>
+                                    ))}
+                                </Sizes>
+                            )}
 
-                            <Button loading={loading} style={{marginBottom: 0}}>Add product</Button>
+                            <Button loading={loading} style={{marginBottom: 0}}>{product ? 'Save' : 'Add product'}</Button>
                         </>
                     )}
                 </Form>
@@ -280,11 +305,13 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
-        createProduct
+        createProduct,
+        updateProduct,
+        getProducts
     }, dispatch)
 )
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddProduct)
+export default connect(mapStateToProps, mapDispatchToProps)(EditProduct)
 
 
 const Wrapper = styled.div`
@@ -340,6 +367,22 @@ const Gender = styled.button`
     }
 `
 
+const Price = styled.div`
+    position: relative;
+    
+    .label {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 50px;
+        height: 42px;
+        line-height: 42px;
+        text-align: center;
+        font-weight: 300;
+        color: #222;
+    }
+`
+
 const Sizes = styled.div`
     margin-bottom: 50px;
     
@@ -385,6 +428,7 @@ const Size = styled.div`
     button {
         flex-basis: 40px;
         flex-shrink: 0;
+        background: white;
         border: 1px solid #222;
         cursor: pointer;
         

@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getTodos } from '../lib/todo/actions'
+import { getProducts } from '../lib/shop/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
@@ -18,16 +18,19 @@ import './index.scss'
 class Home extends React.Component {
 
     static propTypes = {
-        getTodos: PropTypes.func.isRequired,
+        getProducts: PropTypes.func.isRequired,
+        products: PropTypes.arrayOf(PropTypes.object).isRequired,
         user: PropTypes.object
     }
 
     static getInitialProps = async ({ store }) => {
-        await store.dispatch(getTodos())
+        await store.dispatch(getProducts())
         return {}
     }
 
     render = () => {
+        const { products } = this.props
+
         const settings = {
             infinite: true,
             speed: 1000,
@@ -108,7 +111,7 @@ class Home extends React.Component {
                     </Slider>
 
 
-                    <ProductList />
+                    <ProductList products={products} />
 
                     {/*<AddTodo />*/}
 
@@ -123,12 +126,13 @@ class Home extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    user: state.auth.user
+    user: state.auth.user,
+    products: state.shop.products
 })
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
-        getTodos
+        getProducts
     }, dispatch)
 )
 

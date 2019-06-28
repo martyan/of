@@ -4,18 +4,22 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts } from '../lib/shop/actions'
+import { getProducts, updateProduct, deleteProduct } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
+import styled from 'styled-components'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
-import AddProduct from '../components/products/AddProduct'
 import DNDList from '../components/DNDList'
-import './cart.scss'
+import ImgUpload from '../components/admin/ImgUpload'
+import Button from '../components/common/Button'
+import EditProduct from '../components/products/EditProduct'
+import Stock from '../components/products/Stock'
+import './admin.scss'
 
 class Admin extends React.Component {
 
@@ -35,13 +39,54 @@ class Admin extends React.Component {
         createAccountVisible: false,
         addProductVisible: false,
         imgMGMTVisible: false,
+        imgUploadVisible: false,
         editProductVisible: false,
+        deleteProductVisible: false,
+        stockVisible: false,
         productId: null
+    }
+
+    updateProductPhotos = (photos) => {
+        const { updateProduct, products } = this.props
+        const { productId } = this.state
+
+        const product = products.find(product => product.id === productId)
+        if(!product) return
+
+        const updated = {
+            ...product,
+            photos: [...product.photos, ...photos]
+        }
+
+        updateProduct(product.id, updated)
+            .catch(console.error)
+    }
+
+    deleteProduct = () => {
+        const { deleteProduct, getProducts } = this.props
+        const { productId } = this.state
+
+        deleteProduct(productId)
+            .then(getProducts)
+            .then(() => this.setState({deleteProductVisible: false}))
+            .catch(console.error)
     }
 
     render = () => {
         const { products } = this.props
-        const { signInVisible, createAccountVisible, addProductVisible, imgMGMTVisible, editProductVisible } = this.state
+        const {
+            signInVisible,
+            createAccountVisible,
+            addProductVisible,
+            imgMGMTVisible,
+            editProductVisible,
+            deleteProductVisible,
+            imgUploadVisible,
+            stockVisible,
+            productId
+        } = this.state
+
+        const selectedProduct = products.find(product => product.id === productId)
 
         return (
             <PageWrapper>
@@ -55,30 +100,57 @@ class Admin extends React.Component {
 
                     <Header />
 
-                    <div>
-                        <button onClick={() => this.setState({addProductVisible: true})}>Add product</button>
+                    <div className="inner">
+                        <Button onClick={() => this.setState({addProductVisible: true})}>Add product</Button>
 
-                        <div>
-                            <DNDList
-                                items={products}
-                                onEdit={productId => this.setState({editProductVisible: true, productId})}
-                                onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}
-                            />
-                        </div>
+                        <DNDList
+                            items={products}
+                            onEdit={productId => this.setState({editProductVisible: true, productId})}
+                            onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}
+                            onDelete={productId => this.setState({deleteProductVisible: true, productId})}
+                            onStock={productId => this.setState({stockVisible: true, productId})}
+                        />
                     </div>
 
                     <Footer />
 
                     <Modal visible={editProductVisible} onClose={() => this.setState({editProductVisible: false})}>
-                        <div>edit product</div>
+                        <EditProduct
+                            product={selectedProduct}
+                            close={() => this.setState({stockVisible: false})}
+                        />
+                    </Modal>
+
+                    <Modal visible={stockVisible} onClose={() => this.setState({stockVisible: false})}>
+                        <Stock
+                            product={selectedProduct}
+                            close={() => this.setState({stockVisible: false})}
+                        />
+                    </Modal>
+
+                    <Modal visible={deleteProductVisible} onClose={() => this.setState({deleteProductVisible: false})}>
+                        <Confirmation>
+                            <h1>Do you really want to delete the product?</h1>
+                            <div>
+                                <button onClick={this.deleteProduct}>Delete</button>
+                                <button onClick={() => this.setState({deleteProductVisible: false})}>Keep</button>
+                            </div>
+                        </Confirmation>
                     </Modal>
 
                     <Modal visible={imgMGMTVisible} onClose={() => this.setState({imgMGMTVisible: false})}>
-                        <div>imgMGMT product</div>
+                        <div>
+                            {selectedProduct && selectedProduct.photos.map((photo, i) => <div key={i} className="photo"><img src={photo} /></div>)}
+                            <button onClick={() => this.setState({imgUploadVisible: true})}></button>
+                        </div>
+                    </Modal>
+
+                    <Modal visible={imgUploadVisible} onClose={() => this.setState({imgUploadVisible: false})}>
+                        <ImgUpload path={`products/${productId}`} onCompleted={this.updateProductPhotos} />
                     </Modal>
 
                     <Modal noPadding visible={addProductVisible} onClose={() => this.setState({addProductVisible: false})}>
-                        <AddProduct close={() => this.setState({addProductVisible: false})} />
+                        <EditProduct close={() => this.setState({addProductVisible: false})} />
                     </Modal>
 
                     <Modal noPadding visible={signInVisible} onClose={() => this.setState({signInVisible: false})}>
@@ -102,8 +174,57 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
+        updateProduct,
+        deleteProduct,
         signOut
     }, dispatch)
 )
 
 export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(Admin)
+
+const Confirmation = styled.div`
+    h1 {
+        margin: 40px 0;
+        font-weight: 500;
+        font-size: 1.1em;
+        text-align: center;
+        color: #222;
+    }
+    
+    div {
+        display: flex;
+    }
+    
+    button {
+        flex: 1;
+        padding: 5px;
+        cursor: pointer;
+        transition: .2s ease;
+        
+        &:first-child {
+            border: 1px solid indianred;
+            background: white;
+            color: indianred;
+            margin-right: 5px;
+            
+            &:hover {
+                border: 1px solid indianred;
+                background: indianred;
+                color: white;
+            }
+        }
+        
+        &:last-child {
+            border: 1px solid #222;
+            background: white;
+            color: #222;
+            margin-left: 5px;
+            
+            &:hover {
+                border: 1px solid white;
+                background: #222;
+                color: white;
+            }
+        }
+    }
+`
