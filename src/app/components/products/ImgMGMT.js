@@ -13,7 +13,7 @@ import { media } from '../common/variables'
 
 const SortableItem = SortableElement(({ item, loading, reorder, onDeleteClick }) => (
     <Photo>
-        {(!loading && !reorder) && <button className="delete" onClick={onDeleteClick}><i className="fa fa-trash"></i></button>}
+        {!reorder && <Delete loading={loading} onClick={onDeleteClick}><i className="fa fa-trash"></i></Delete>}
         <img src={item} />
     </Photo>
 ))
@@ -28,6 +28,7 @@ const SortableList = SortableContainer(({ items, loading, reorder, setUploadVisi
                 disabled={!reorder}
                 onDeleteClick={() => onDeleteClick(index)}
                 loading={loading}
+                reorder={reorder}
             />
         ))}
         {!reorder && <Add onClick={() => setUploadVisible(true)}>+</Add>}
@@ -168,8 +169,9 @@ const Add = styled.li`
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 1;
+    flex-basis: calc((100% / 3) - 10px);
     margin: 5px;
+    min-width: 280px;
     min-height: 100px;
     list-style-type: none;
     color: #222;
@@ -200,32 +202,30 @@ const Photo = styled.li`
     ${media.desktop} {
         flex-basis: calc((100% / 4) - 10px);
     }
-
-    .delete {
-        right: 0;
-    }
-    
-    .delete {
-        position: absolute;
-        top: 0;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        background: #222;
-        color: white;
-        text-align: center;
-        font-size: 1.1em;
-        border: 0;
-        cursor: pointer;
-        transition: .1s ease;
-        
-        &:hover {
-            background: #000;
-        }
-    }
     
     img {
         display: block;
         width: 100%;
+    }
+`
+
+const Delete = styled.button`
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    background: #222;
+    color: white;
+    text-align: center;
+    font-size: 1.1em;
+    border: 0;
+    cursor: pointer;
+    opacity: ${({loading}) => loading ? '.2' : '1'};
+    transition: .1s ease;
+    
+    &:hover {
+        background: #000;
     }
 `

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { useDropzone } from 'react-dropzone'
@@ -7,14 +7,18 @@ import { uploadFile } from '../../lib/auth/actions'
 import Button from '../common/Button'
 import styled from 'styled-components'
 
-const ImgUpload = ({ user, uploadFile, onCompleted, path }) => {
+const ImgUpload = ({ user, uploadFile, onCompleted, path, autoPopup }) => {
     const [ serverError, setServerError ] = useState('')
     const [ loading, setLoading ] = useState(false)
 
-    const { acceptedFiles, rejectedFiles, getRootProps, getInputProps } = useDropzone({
+    const { acceptedFiles, rejectedFiles, getRootProps, getInputProps, rootRef } = useDropzone({
         accept: 'image/jpeg, image/png',
         maxSize: 5 * 1024 * 1024
     })
+
+    useEffect(() => {
+        if(autoPopup) rootRef.current.click()
+    }, [])
 
     const getUploadPromise = (file, index) => {
         const ext = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase()
@@ -57,16 +61,17 @@ const ImgUpload = ({ user, uploadFile, onCompleted, path }) => {
 
             <form {...getRootProps()}>
                 <input {...getInputProps()} />
-                <div className="dropzone">Click here or drop a file to upload</div>
+                <div className="dropzone">
+                    {acceptedFiles.length === 0 ?
+                        <p>Click here or drop a file to upload</p> :
+                        <ul>{acceptedFiles.map(file => <li key={file.path}>{file.path} ({Math.round((file.size / 1024 / 1024) * 100) / 100} MB)</li>)}</ul>
+                    }
+                </div>
             </form>
-
-            {acceptedFiles.length > 0 && (
-                <ul>{acceptedFiles.map(file => <li key={file.path}>{file.path} ({Math.round((file.size / 1024 / 1024) * 100) / 100} MB)</li>)}</ul>
-            )}
 
             <div>{serverError}</div>
 
-            <Button loading={loading} onClick={handleSubmit} style={{marginBottom: 0}}>Upload</Button>
+            {acceptedFiles.length > 0 && <Button loading={loading} onClick={handleSubmit} style={{marginBottom: 0}}>Upload</Button>}
         </Wrapper>
     )
 }
@@ -103,19 +108,28 @@ const Wrapper = styled.div`
         margin-bottom: 30px;
         padding: 30px 15px;
         border: 1px dashed #ddd;
-        text-align: center;
-        color: #444;
         cursor: pointer;
-    }
-    
-    ul {
-        margin: 0 0 30px;
-        padding: 15px;
-        list-style-type: none;
+        overflow: hidden;
         
-        li {
-            display: block;
+        p {
+            text-align: center;
             color: #444;
         }
+        
+        ul {
+            margin: 0;
+            padding: 15px;
+            list-style-type: none;
+            text-align: left;
+            
+            li {
+                display: block;
+                color: #444;
+                margin-bottom: 10px;
+                font-size: .9em;
+                color: #888;
+            }
+        }
     }
+   
 `
