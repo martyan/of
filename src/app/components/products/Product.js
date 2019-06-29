@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -7,67 +7,88 @@ import { media } from '../common/variables'
 import { Router } from '../../../functions/routes'
 import ImageGallery from 'react-image-gallery'
 import { addToCart } from '../../lib/shop/actions'
-import { imgs } from '../../fakeData'
 import 'react-image-gallery/styles/scss/image-gallery.scss'
-import './Product.scss'
 
-class Product extends Component {
+const Product = ({ product, addToCart }) => {
+    const [size, setSize] = useState('m')
 
-    static propTypes = {
-        product: PropTypes.object.isRequired,
-        addToCart: PropTypes.func.isRequired
-    }
-
-    state = {
-        size: 'm'
-    }
-
-    back = () => {
+    const back = () => {
         Router.pushRoute('/shop')
     }
 
-    render = () => {
-        const { product, addToCart } = this.props
+    const isActiveSize = s => s === size
 
-        const isActive = size => size === this.state.size
+    const photos = product.photos.length > 0 ? product.photos : ['https://via.placeholder.com/900x1146/eee']
 
-        const photos = product.photos.length > 0 ? product.photos : ['https://via.placeholder.com/900x1146/eee']
+    const images = photos.map(img => ({
+        original: img,
+        thumbnail: img
+    }))
 
-        const images = photos.map(img => ({
-            original: img,
-            thumbnail: img
-        }))
+    const settings = {
+        showPlayButton: false,
+        showFullscreenButton: false,
+        thumbnailPosition: 'left'
+    }
 
-        const settings = {
-            showPlayButton: false,
-            showFullscreenButton: false,
-            thumbnailPosition: 'left'
-        }
-
-        return (
+    return (
+        <div>
             <Wrapper>
-                <NameMobile><Back onClick={this.back}>{chevronLeft}</Back> {product.name}</NameMobile>
+                <NameMobile><Back onClick={back}>{chevronLeft}</Back> {product.name}</NameMobile>
 
                 <Gallery>
                     <ImageGallery {...settings} items={images} />
                 </Gallery>
 
                 <div>
-                    <NameTablet><Back onClick={this.back}>{chevronLeft}</Back> {product.name}</NameTablet>
+                    <NameTablet><Back onClick={back}>{chevronLeft}</Back> {product.name}</NameTablet>
                     <Description>{product.description}</Description>
                     <Price>CZK {product.price}</Price>
                     <Sizes>
-                        <Size className={isActive('s') ? 'size active' : 'size'} onClick={() => this.setState({size: 's'})}>S</Size>
-                        <Size className={isActive('m') ? 'size active' : 'size'} onClick={() => this.setState({size: 'm'})}>M</Size>
-                        <Size className={isActive('l') ? 'size active' : 'size'} onClick={() => this.setState({size: 'l'})}>L</Size>
-                        <Size className={isActive('xl') ? 'size active' : 'size'} onClick={() => this.setState({size: 'xl'})}>XL</Size>
+                        <Size className={isActiveSize('s') ? 'size active' : 'size'} onClick={() => setSize('s')}>S</Size>
+                        <Size className={isActiveSize('m') ? 'size active' : 'size'} onClick={() => setSize('m')}>M</Size>
+                        <Size className={isActiveSize('l') ? 'size active' : 'size'} onClick={() => setSize('l')}>L</Size>
+                        <Size className={isActiveSize('xl') ? 'size active' : 'size'} onClick={() => setSize('xl')}>XL</Size>
                     </Sizes>
                     <AddToCart onClick={() => addToCart({id: 'hovno'})}>Add to cart</AddToCart>
                 </div>
             </Wrapper>
-        )
-    }
+            <style jsx global>{`
+                    .image-gallery-slide {
+                        text-align: center !important;
+                    }
 
+                    .image-gallery-slide img{
+                        width: auto !important;
+                        max-height: 320px !important;
+                    }
+
+                    @media (min-width: 500px) {
+                        .image-gallery-slide img {
+                            width: 100% !important;
+                            max-height: none !important;
+                        }
+                    }
+
+                    .image-gallery-fullscreen-button:hover::before, .image-gallery-play-button:hover::before, .image-gallery-left-nav:hover::before, .image-gallery-right-nav:hover::before {
+                        color: #222 !important;
+                    }
+
+                    .image-gallery-fullscreen-button::before, .image-gallery-play-button::before, .image-gallery-left-nav::before, .image-gallery-right-nav::before {
+                        text-shadow: 0 0 2px #999 !important;
+                    }
+
+                    .image-gallery-thumbnail.active {
+                        border: 2px solid #222 !important;
+                    }
+                `}</style>
+        </div>
+    )
+}
+
+Product.propTypes = {
+    product: PropTypes.object.isRequired,
+    addToCart: PropTypes.func.isRequired
 }
 
 const mapStateToProps = (state) => ({
@@ -105,7 +126,7 @@ const Gallery = styled.div`
     
     ${media.tablet} {
         display: flex;
-        width: calc(50% - 50px);
+        width: calc(60% - 50px);
         margin-right: 50px;
     }
 `
