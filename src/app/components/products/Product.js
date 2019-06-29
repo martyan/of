@@ -53,35 +53,36 @@ const Product = ({ product, addToCart }) => {
                     <AddToCart onClick={() => addToCart({id: 'hovno'})}>Add to cart</AddToCart>
                 </div>
             </Wrapper>
+
             <style jsx global>{`
-                    .image-gallery-slide {
-                        text-align: center !important;
-                    }
+                .image-gallery-slide {
+                    text-align: center !important;
+                }
 
-                    .image-gallery-slide img{
-                        width: auto !important;
-                        max-height: 320px !important;
-                    }
+                .image-gallery-slide img{
+                    width: auto !important;
+                    max-height: 320px !important;
+                }
 
-                    @media (min-width: 500px) {
-                        .image-gallery-slide img {
-                            width: 100% !important;
-                            max-height: none !important;
-                        }
+                @media (min-width: 500px) {
+                    .image-gallery-slide img {
+                        width: 100% !important;
+                        max-height: none !important;
                     }
+                }
 
-                    .image-gallery-fullscreen-button:hover::before, .image-gallery-play-button:hover::before, .image-gallery-left-nav:hover::before, .image-gallery-right-nav:hover::before {
-                        color: #222 !important;
-                    }
+                .image-gallery-fullscreen-button:hover::before, .image-gallery-play-button:hover::before, .image-gallery-left-nav:hover::before, .image-gallery-right-nav:hover::before {
+                    color: #222 !important;
+                }
 
-                    .image-gallery-fullscreen-button::before, .image-gallery-play-button::before, .image-gallery-left-nav::before, .image-gallery-right-nav::before {
-                        text-shadow: 0 0 2px #999 !important;
-                    }
+                .image-gallery-fullscreen-button::before, .image-gallery-play-button::before, .image-gallery-left-nav::before, .image-gallery-right-nav::before {
+                    text-shadow: 0 0 2px #999 !important;
+                }
 
-                    .image-gallery-thumbnail.active {
-                        border: 2px solid #222 !important;
-                    }
-                `}</style>
+                .image-gallery-thumbnail.active {
+                    border: 2px solid #222 !important;
+                }
+            `}</style>
         </div>
     )
 }

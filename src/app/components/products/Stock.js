@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -23,94 +23,67 @@ export const getSizes = (category) => {
     }
 }
 
-class Stock extends Component {
+const Stock = ({ product, close, updateProduct, getProducts }) => {
+    const [quantity, setQuantity] = useState({})
+    const [loading, setLoading] = useState(false)
 
-    static propTypes = {
-        close: PropTypes.func.isRequired,
-        product: PropTypes.object
-    }
+    useEffect(() => {
+        setQuantity(product.quantity)
+    }, [product])
 
-    state = {
-        quantity: {},
-        serverError: '',
-        loading: false,
-    }
-
-    componentDidMount() {
-        this.loadForm()
-    }
-
-    loadForm = () => {
-        const { quantity } = this.props.product
-
-        this.setState({quantity})
-    }
-
-    handleQuantityChange = (key, value) => {
-        const { quantity } = this.state
-
-        if(value < 0) return
-
-        this.setState({
-            quantity: {
-                ...quantity,
-                [key]: value
-            }
-        })
-    }
-
-    handleSubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault()
-        const { updateProduct, getProducts, close, product } = this.props
-        const { quantity } = this.state
+        setLoading(true)
 
         const data = { quantity }
-
-        this.setState({ loading: true })
 
         return updateProduct(product.id, data)
             .then(getProducts)
             .then(close)
-            .catch(this.handleError)
+            .catch(console.error)
     }
 
-    handleError = (error) => {
-        this.setState({serverError: error.code, loading: false})
+    const handleQuantityChange = (key, value) => {
+        if(value < 0) return
+
+        setQuantity({
+            ...quantity,
+            [key]: value
+        })
     }
 
-    render = () => {
-        const { product } = this.props
-        const { quantity, loading } = this.state
+    const sizes = getSizes(product.category)
 
-        const sizes = getSizes(product.category)
+    return (
+        <Form onSubmit={handleSubmit}>
+            <h1>Product stock</h1>
 
-        return (
-            <Form onSubmit={this.handleSubmit}>
-                <h1>Product stock</h1>
+            <Sizes>
+                {sizes.map(size => (
+                    <Size key={size.value} highlighted={quantity[size.value] > 0}>
+                        <label>{size.label}</label>
+                        <div>
+                            <button type="button" onClick={() => handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
+                            <input
+                                type="number"
+                                value={quantity[size.value]}
+                                onChange={e => handleQuantityChange(size.value, e.target.value)}
+                                min={0}
+                            />
+                            <button type="button" onClick={() => handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
+                        </div>
+                    </Size>
+                ))}
+            </Sizes>
 
-                <Sizes>
-                    {sizes.map(size => (
-                        <Size key={size.value} highlighted={quantity[size.value] > 0}>
-                            <label>{size.label}</label>
-                            <div>
-                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
-                                <input
-                                    type="number"
-                                    value={quantity[size.value]}
-                                    onChange={e => this.handleQuantityChange(size.value, e.target.value)}
-                                    min={0}
-                                />
-                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
-                            </div>
-                        </Size>
-                    ))}
-                </Sizes>
+            <Button loading={loading} style={{marginBottom: 0}}>{product ? 'Save' : 'Add product'}</Button>
+        </Form>
+    )
+}
 
-                <Button loading={loading} style={{marginBottom: 0}}>{product ? 'Save' : 'Add product'}</Button>
-            </Form>
-        )
-    }
-
+Stock.propTypes = {
+    close: PropTypes.func.isRequired,
+    product: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
