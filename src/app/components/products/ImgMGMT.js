@@ -4,29 +4,96 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { updateProduct, getProducts } from '../../lib/shop/actions'
 import styled from 'styled-components'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
+import arrayMove from 'array-move'
 import Modal from '../common/Modal'
 import ImgUpload from '../admin/ImgUpload'
 import Button from '../common/Button'
+import { media } from '../common/variables'
+
+const SortableItem = SortableElement(({ item, loading, reorder, onDeleteClick }) => (
+    <Photo>
+        {(!loading && !reorder) && <button className="delete" onClick={onDeleteClick}><i className="fa fa-trash"></i></button>}
+        <img src={item} />
+    </Photo>
+))
+
+const SortableList = SortableContainer(({ items, loading, reorder, setUploadVisible, onDeleteClick }) => (
+    <Photos>
+        {items.map((item, index) => (
+            <SortableItem
+                key={`item-${index}`}
+                index={index}
+                item={item}
+                disabled={!reorder}
+                onDeleteClick={() => onDeleteClick(index)}
+                loading={loading}
+            />
+        ))}
+        {!reorder && <Add onClick={() => setUploadVisible(true)}>+</Add>}
+    </Photos>
+))
 
 
 const ImgMGMT = ({ product, close, updateProduct, getProducts }) => {
     const [items, setItems] = useState([])
     const [reorder, setReorder] = useState(false)
     const [uploadVisible, setUploadVisible] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         setItems(product.photos)
-    })
+    }, [product])
 
     const updateProductPhotos = (photos) => {
+        setLoading(true)
+
         const data = {
             photos: [...product.photos, ...photos]
         }
 
         updateProduct(product.id, data)
             .then(getProducts)
-            .then(() => setUploadVisible(false))
+            .then(() => {
+                setUploadVisible(false)
+                setLoading(false)
+            })
             .catch(console.error)
+    }
+
+    const saveReordering = () => {
+        setLoading(true)
+
+        const data = {
+            photos: [...items]
+        }
+
+        updateProduct(product.id, data)
+            .then(getProducts)
+            .then(() => {
+                setReorder(false)
+                setLoading(false)
+            })
+            .catch(console.error)
+    }
+
+    const deletePhoto = (index) => {
+        setLoading(true)
+
+        const data = {
+            photos: product.photos.filter((photo, i) => i !== index)
+        }
+
+        updateProduct(product.id, data)
+            .then(getProducts)
+            .then(() => {
+                setLoading(false)
+            })
+            .catch(console.error)
+    }
+
+    const onSortEnd = ({ oldIndex, newIndex }) => {
+        setItems(arrayMove(items, oldIndex, newIndex))
     }
 
     return (
@@ -34,22 +101,23 @@ const ImgMGMT = ({ product, close, updateProduct, getProducts }) => {
             <Wrapper>
                 <h1>Photo management</h1>
 
-                <Button onClick={() => setUploadVisible(true)}>Upload img</Button>
+                {reorder && <Button loading={loading} onClick={saveReordering}>Save</Button>}
+                {(!reorder && items.length > 1) && <Button loading={loading} onClick={() => setReorder(true)}>Reorder</Button>}
 
-                <Photos>
-                    {items.map((item, index) => (
-                        <div key={index} className="photo">
-                            {!reorder && <button className="delete"><i className="fa fa-trash"></i></button>}
-                            <button className="reorder" onClick={() => setReorder(!reorder)}><i className="fa fa-arrows-v"></i></button>
-                            <img src={item} />
-                        </div>
-                    ))}
-                </Photos>
+                <SortableList
+                    axis="xy"
+                    items={items}
+                    onSortEnd={onSortEnd}
+                    reorder={reorder}
+                    loading={loading}
+                    setUploadVisible={setUploadVisible}
+                    onDeleteClick={deletePhoto}
+                />
 
-                <Button style={{margin: '30px 0 0 0'}}>Save</Button>
+                {reorder && <Button loading={loading} style={{margin: '30px 0 0 0'}} onClick={saveReordering}>Save</Button>}
             </Wrapper>
 
-            <Modal visible={uploadVisible} onClose={() => setUploadVisible(true)}>
+            <Modal visible={uploadVisible} onClose={() => setUploadVisible(false)}>
                 <ImgUpload
                     path={`products/${product.id}`}
                     onCompleted={updateProductPhotos}
@@ -90,47 +158,74 @@ const Wrapper = styled.div`
 
 const Photos = styled.div`
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     width: 100%;
     opacity: .8;
+`
+
+const Add = styled.li`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    margin: 5px;
+    min-height: 100px;
+    list-style-type: none;
+    color: #222;
+    font-weight: 300;
+    font-size: 3em;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: .2s ease;
     
-    .photo {
+    &:hover {
+        border-color: #222;
+    }
+`
+
+const Photo = styled.li`
+    flex-basis: calc((100% / 2) - 10px);
+    flex-shrink: 0;
+    flex-grow: 0;
+    margin: 5px;
+    list-style-type: none;
+    position: relative;
+    z-index: 99999;
+    
+    ${media.tablet} {
         flex-basis: calc((100% / 3) - 10px);
-        flex-shrink: 0;
-        flex-grow: 0;
-        margin: 5px;
-        position: relative;
+    }
     
-        .reorder {
-            right: 0;
-        }
+    ${media.desktop} {
+        flex-basis: calc((100% / 4) - 10px);
+    }
+
+    .delete {
+        right: 0;
+    }
+    
+    .delete {
+        position: absolute;
+        top: 0;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        background: #222;
+        color: white;
+        text-align: center;
+        font-size: 1.1em;
+        border: 0;
+        cursor: pointer;
+        transition: .1s ease;
         
-        .delete {
-            right: 41px;
+        &:hover {
+            background: #000;
         }
-        
-        .reorder, .delete {
-            position: absolute;
-            top: 0;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            background: #222;
-            color: white;
-            text-align: center;
-            font-size: 1.1em;
-            border: 0;
-            cursor: pointer;
-            transition: .1s ease;
-            
-            &:hover {
-                background: #000;
-            }
-        }
-        
-        img {
-            display: block;
-            width: 100%;
-        }
+    }
+    
+    img {
+        display: block;
+        width: 100%;
     }
 `
