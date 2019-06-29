@@ -126,7 +126,7 @@ class Admin extends React.Component {
                         </Confirmation>
                     </Modal>
 
-                    <Modal visible={imgMGMTVisible} onClose={() => this.setState({imgMGMTVisible: false})}>
+                    <Modal stretch visible={imgMGMTVisible} onClose={() => this.setState({imgMGMTVisible: false})}>
                         <ImgMGMT
                             product={selectedProduct}
                             close={() => this.setState({imgMGMTVisible: false})}
