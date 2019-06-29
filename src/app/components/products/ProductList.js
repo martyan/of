@@ -16,31 +16,33 @@ class ProductList extends Component {
     }
 
     filterProduct = (product) => {
-        const { men, women, tshirt, sweatshirt } = this.props.filters
+        const { men, women, tshirt, sweatshirt, skateboard } = this.props.filters
 
         const isMen = men && product.gender === 'men'
         const isWomen = women && product.gender === 'women'
+        const isUNI = (men || women) && product.gender === 'uni'
 
         const isTshirt = tshirt && product.category === 'tshirt'
         const isSweatshirt = sweatshirt && product.category === 'sweatshirt'
+        const isSkateboard = skateboard && product.category === 'skateboard'
 
-        return (isMen || isWomen) && (isTshirt || isSweatshirt)
+        return (isMen || isWomen || isUNI) && (isTshirt || isSweatshirt || isSkateboard)
     }
 
     toggleFilter = (filter1, filter2) => {
         const { setFilter, filters } = this.props
 
-        if(filters[filter1] && !filters[filter2]) setFilter(filter2, true)
+        if(filter2 && filters[filter1] && !filters[filter2]) setFilter(filter2, true)
         setFilter(filter1, !filters[filter1])
     }
 
     handleProductClick = (productId) => {
-        Router.push(`/product/${productId}`)
+        Router.pushRoute(`/product/${productId}`)
     }
 
     render = () => {
         const { products } = this.props
-        const { men, women, tshirt, sweatshirt } = this.props.filters
+        const { men, women, tshirt, sweatshirt, skateboard } = this.props.filters
 
         const filtered = products.filter(this.filterProduct)
 
@@ -61,13 +63,17 @@ class ProductList extends Component {
 
                     <div className="category">
                         <label className="filter">
-                            <Check onChange={e => this.toggleFilter('tshirt', 'sweatshirt')} checked={tshirt} />
+                            <Check onChange={e => this.toggleFilter('tshirt')} checked={tshirt} />
                             <span>T-shirt</span>
                         </label>
 
                         <label className="filter">
-                            <Check onChange={e => this.toggleFilter('sweatshirt', 'tshirt')} checked={sweatshirt} />
+                            <Check onChange={e => this.toggleFilter('sweatshirt')} checked={sweatshirt} />
                             <span>Sweatshirt</span>
+                        </label>
+                        <label className="filter">
+                            <Check onChange={e => this.toggleFilter('skateboard')} checked={skateboard} />
+                            <span>Skate</span>
                         </label>
                     </div>
                 </div>

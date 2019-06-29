@@ -168,7 +168,7 @@ class EditProduct extends Component {
         const isCategorySet = category !== ''
 
         return (
-            <Wrapper>
+            <div>
                 <Form onSubmit={this.handleSubmit}>
                     <h1>{product ? 'Edit product' : 'Add product'}</h1>
 
@@ -294,7 +294,7 @@ class EditProduct extends Component {
                         color: white !important;
                      }
                 `}</style>
-            </Wrapper>
+            </div>
         )
     }
 
@@ -314,16 +314,7 @@ const mapDispatchToProps = (dispatch) => (
 export default connect(mapStateToProps, mapDispatchToProps)(EditProduct)
 
 
-const Wrapper = styled.div`
-    padding: 15px;
-    max-width: 1280px;
-    margin: 0 auto;
-`
-
 const Form = styled.form`
-    max-width: 420px;
-    margin: 0 auto;
-    
     h1 {
         font-family: 'Roboto Slab', serif;
         font-size: 1.25em;

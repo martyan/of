@@ -59,7 +59,7 @@ class Header extends React.Component {
                             <a>Contact</a>
                         </Nav>
 
-                        <Cart onClick={() => Router.push('/cart')}>
+                        <Cart onClick={() => Router.pushRoute('/cart')}>
                             {cart.length > 0 && <Count>{cart.length}</Count>}
                             <img src={cartIcon} />
                         </Cart>

@@ -85,31 +85,29 @@ class Stock extends Component {
         const sizes = getSizes(product.category)
 
         return (
-            <Wrapper>
-                <Form onSubmit={this.handleSubmit}>
-                    <h1>Product stock</h1>
+            <Form onSubmit={this.handleSubmit}>
+                <h1>Product stock</h1>
 
-                    <Sizes>
-                        {sizes.map(size => (
-                            <Size key={size.value} highlighted={quantity[size.value] > 0}>
-                                <label>{size.label}</label>
-                                <div>
-                                    <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
-                                    <input
-                                        type="number"
-                                        value={quantity[size.value]}
-                                        onChange={e => this.handleQuantityChange(size.value, e.target.value)}
-                                        min={0}
-                                    />
-                                    <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
-                                </div>
-                            </Size>
-                        ))}
-                    </Sizes>
+                <Sizes>
+                    {sizes.map(size => (
+                        <Size key={size.value} highlighted={quantity[size.value] > 0}>
+                            <label>{size.label}</label>
+                            <div>
+                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
+                                <input
+                                    type="number"
+                                    value={quantity[size.value]}
+                                    onChange={e => this.handleQuantityChange(size.value, e.target.value)}
+                                    min={0}
+                                />
+                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
+                            </div>
+                        </Size>
+                    ))}
+                </Sizes>
 
-                    <Button loading={loading} style={{marginBottom: 0}}>{product ? 'Save' : 'Add product'}</Button>
-                </Form>
-            </Wrapper>
+                <Button loading={loading} style={{marginBottom: 0}}>{product ? 'Save' : 'Add product'}</Button>
+            </Form>
         )
     }
 
@@ -128,16 +126,7 @@ const mapDispatchToProps = (dispatch) => (
 export default connect(mapStateToProps, mapDispatchToProps)(Stock)
 
 
-const Wrapper = styled.div`
-    padding: 15px;
-    max-width: 1280px;
-    margin: 0 auto;
-`
-
 const Form = styled.form`
-    max-width: 420px;
-    margin: 0 auto;
-    
     h1 {
         font-family: 'Roboto Slab', serif;
         font-size: 1.25em;

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { Link, Router } from '../../functions/routes'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import styled from 'styled-components'
 import { media } from './common/variables'
@@ -22,10 +23,6 @@ const getItemStyle = (isDragging, draggableStyle) => ({
     background: 'white',
     border: '1px solid #eee',
     ...draggableStyle
-})
-
-const getListStyle = isDraggingOver => ({
-    width: '100%'
 })
 
 class DNDList extends Component {
@@ -77,7 +74,7 @@ class DNDList extends Component {
                         <div
                             {...provided.droppableProps}
                             ref={provided.innerRef}
-                            style={getListStyle(snapshot.isDraggingOver)}
+                            style={{width: '100%'}}
                         >
                             {items.map((item, index) => (
                                 <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!reorder}>
@@ -110,17 +107,19 @@ class DNDList extends Component {
                                                 </Photos>
                                             )}
 
-                                            <Actions className="actions">
+                                            <Actions>
                                                 {reorder ?
                                                     <button onClick={() => this.setState({reorder: !reorder})}>
                                                         <i className="fa fa-arrows-v"></i>
                                                         <span>Done</span>
                                                     </button> :
                                                     <>
-                                                        <button onClick={() => onDetail(item.id)}>
-                                                            <i className="fa fa-external-link"></i>
-                                                            <span>View</span>
-                                                        </button>
+                                                        <Link to={`/product/${item.id}`}>
+                                                            <a target="_blank">
+                                                                <i className="fa fa-external-link"></i>
+                                                                <span>View</span>
+                                                            </a>
+                                                        </Link>
                                                         <button onClick={() => onStock(item.id)}>
                                                             <i className="fa fa-cart-plus"></i>
                                                             <span>Stock</span>
@@ -206,12 +205,13 @@ const Actions = styled.div`
     justify-content: flex-end;
     margin-top: 20px;
 
-    button {
+    button, a {
         display: flex;
         flex-direction: column;
         align-items: center;
         margin-right: 10px;
         background: transparent;
+        text-decoration: none;
         border: 0;
         color: #ccc;
         cursor: pointer;
@@ -244,13 +244,15 @@ const Actions = styled.div`
 
 const Photos = styled.div`
     display: flex;
+    align-items: center;
     overflow-x: auto;
     overflow-y: hidden;
     margin-top: 20px;
 
     .photo {
 
-        opacity: .6;
+        opacity: .8;
+        margin-right: 5px;
 
         img {
             height: 100px;

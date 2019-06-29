@@ -9,8 +9,8 @@ export default (WrappedComponent) => (
     class GAWrapper extends Component {
 
         componentDidMount() {
-            this.initGa()
-            this.trackPageview()
+            // this.initGa()
+            // this.trackPageview()
             Router.router.events.on('routeChangeComplete', this.trackPageview)
         }
 

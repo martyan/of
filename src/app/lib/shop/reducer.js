@@ -3,10 +3,12 @@ export const initialState = {
         men: true,
         women: true,
         tshirt: true,
-        sweatshirt: true
+        sweatshirt: true,
+        skateboard: true
     },
     cart: [],
-    products: []
+    products: [],
+    product: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -19,6 +21,11 @@ const reducer = (state = initialState, action) => {
 
         case 'GET_PRODUCTS_SUCCESS':
             return {...state, products: action.payload}
+
+        case 'GET_PRODUCT_REQUEST':
+            return {...state, product: null}
+        case 'GET_PRODUCT_SUCCESS':
+            return {...state, product: action.payload}
 
         default:
             return state

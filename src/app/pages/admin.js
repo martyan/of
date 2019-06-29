@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts, updateProduct, deleteProduct } from '../lib/shop/actions'
+import { getProducts, deleteProduct } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
@@ -15,10 +15,10 @@ import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
 import DNDList from '../components/DNDList'
-import ImgUpload from '../components/admin/ImgUpload'
 import Button from '../components/common/Button'
 import EditProduct from '../components/products/EditProduct'
 import Stock from '../components/products/Stock'
+import ImgMGMT from '../components/products/ImgMGMT'
 import './admin.scss'
 
 class Admin extends React.Component {
@@ -39,27 +39,10 @@ class Admin extends React.Component {
         createAccountVisible: false,
         addProductVisible: false,
         imgMGMTVisible: false,
-        imgUploadVisible: false,
         editProductVisible: false,
         deleteProductVisible: false,
         stockVisible: false,
         productId: null
-    }
-
-    updateProductPhotos = (photos) => {
-        const { updateProduct, products } = this.props
-        const { productId } = this.state
-
-        const product = products.find(product => product.id === productId)
-        if(!product) return
-
-        const updated = {
-            ...product,
-            photos: [...product.photos, ...photos]
-        }
-
-        updateProduct(product.id, updated)
-            .catch(console.error)
     }
 
     deleteProduct = () => {
@@ -81,7 +64,6 @@ class Admin extends React.Component {
             imgMGMTVisible,
             editProductVisible,
             deleteProductVisible,
-            imgUploadVisible,
             stockVisible,
             productId
         } = this.state
@@ -114,6 +96,12 @@ class Admin extends React.Component {
 
                     <Footer />
 
+                    <Modal visible={addProductVisible} onClose={() => this.setState({addProductVisible: false})}>
+                        <EditProduct
+                            close={() => this.setState({addProductVisible: false})}
+                        />
+                    </Modal>
+
                     <Modal visible={editProductVisible} onClose={() => this.setState({editProductVisible: false})}>
                         <EditProduct
                             product={selectedProduct}
@@ -139,18 +127,10 @@ class Admin extends React.Component {
                     </Modal>
 
                     <Modal visible={imgMGMTVisible} onClose={() => this.setState({imgMGMTVisible: false})}>
-                        <div>
-                            {selectedProduct && selectedProduct.photos.map((photo, i) => <div key={i} className="photo"><img src={photo} /></div>)}
-                            <button onClick={() => this.setState({imgUploadVisible: true})}></button>
-                        </div>
-                    </Modal>
-
-                    <Modal visible={imgUploadVisible} onClose={() => this.setState({imgUploadVisible: false})}>
-                        <ImgUpload path={`products/${productId}`} onCompleted={this.updateProductPhotos} />
-                    </Modal>
-
-                    <Modal noPadding visible={addProductVisible} onClose={() => this.setState({addProductVisible: false})}>
-                        <EditProduct close={() => this.setState({addProductVisible: false})} />
+                        <ImgMGMT
+                            product={selectedProduct}
+                            close={() => this.setState({imgMGMTVisible: false})}
+                        />
                     </Modal>
 
                     <Modal noPadding visible={signInVisible} onClose={() => this.setState({signInVisible: false})}>
@@ -174,7 +154,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
-        updateProduct,
         deleteProduct,
         signOut
     }, dispatch)

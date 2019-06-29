@@ -14,6 +14,12 @@
             padding: 15px;
         }
 
+        &.stretch {
+            width: auto;
+            max-width: 100%;
+            min-width: 280px;
+        }
+
         &.no-padding {
             padding: 0;
         }

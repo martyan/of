@@ -60,7 +60,7 @@ class Cart extends React.Component {
                             </>
                         ) : (
                             <>
-                                <Button onClick={() => Router.push('/admin')}>Manage products</Button>
+                                <Button onClick={() => Router.pushRoute('/admin')}>Manage products</Button>
                                 <Button onClick={() => signOut().catch(console.error)}>Sign out</Button>
                             </>
                         )}

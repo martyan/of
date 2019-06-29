@@ -4,32 +4,28 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts } from '../lib/shop/actions'
+import { getProduct } from '../lib/shop/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import { products } from '../fakeData'
 import ProductDetail from '../components/products/Product'
 import './product.scss'
 
 class Product extends React.Component {
 
     static propTypes = {
-        getProducts: PropTypes.func.isRequired,
-        user: PropTypes.object
+        getProduct: PropTypes.func.isRequired
     }
 
     static getInitialProps = async ({ store, query }) => {
-        await store.dispatch(getProducts())
-
-        console.log(query)
+        await store.dispatch(getProduct(query.id))
 
         return {}
     }
 
     render = () => {
-        const product = products[Math.floor(Math.random() * products.length)]
+        const { product } = this.props
 
         return (
             <PageWrapper>
@@ -54,12 +50,13 @@ class Product extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    user: state.auth.user
+    user: state.auth.user,
+    product: state.shop.product
 })
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
-        getProducts
+        getProduct
     }, dispatch)
 )
 

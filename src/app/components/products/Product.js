@@ -23,7 +23,7 @@ class Product extends Component {
     }
 
     back = () => {
-        Router.push('/shop')
+        Router.pushRoute('/shop')
     }
 
     render = () => {
@@ -31,7 +31,9 @@ class Product extends Component {
 
         const isActive = size => size === this.state.size
 
-        const images = imgs.map(img => ({
+        const photos = product.photos.length > 0 ? product.photos : ['https://via.placeholder.com/900x1146/eee']
+
+        const images = photos.map(img => ({
             original: img,
             thumbnail: img
         }))

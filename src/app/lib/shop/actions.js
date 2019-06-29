@@ -9,11 +9,17 @@ export const setDefaultFilters = () => (dispatch) => {
     dispatch(setFilter('women', true))
     dispatch(setFilter('tshirt', true))
     dispatch(setFilter('sweatshirt', true))
+    dispatch(setFilter('skateboard', true))
 }
 
 export const createProduct = (product) => ({
     type: 'CREATE_PRODUCT',
     payload: db.collection('products').add(product)
+})
+
+export const getProduct = (productId) => ({
+    type: 'GET_PRODUCT',
+    payload: db.collection('products').doc(productId).get()
 })
 
 export const updateProduct = (productId, product) => ({

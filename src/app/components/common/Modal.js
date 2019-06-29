@@ -7,6 +7,7 @@ const Modal = (props) => {
     let className =  'modal'
     if(props.noPadding) className += ' no-padding'
     if(props.menu) className += ' menu'
+    if(props.stretch) className += ' stretch'
 
     return (
         <ResponsiveModal
@@ -32,7 +33,8 @@ Modal.propTypes = {
     noPadding: PropTypes.bool,
     noClose: PropTypes.bool,
     menu: PropTypes.bool,
-    whiteClose: PropTypes.bool
+    whiteClose: PropTypes.bool,
+    stretch: PropTypes.bool
 }
 
 export default Modal
