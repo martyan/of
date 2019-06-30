@@ -1,4 +1,5 @@
 import { db } from '../firebase'
+import { CALL_API } from '../apiMiddleware'
 
 export const addToCart = (product) => ({ type: 'ADD_TO_CART', product })
 
@@ -45,4 +46,13 @@ export const getConfig = (configId) => ({
 export const updateConfig = (configId, config) => ({
     type: 'UPDATE_CONFIG',
     payload: db.collection('configs').doc(configId).set(config)
+})
+
+export const createPayment = (data) => ({
+    [CALL_API]: {
+        type: 'CREATE_PAYMENT',
+        endpoint: `/payment`,
+        method: 'POST',
+        data
+    }
 })

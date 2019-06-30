@@ -1,10 +1,14 @@
 const path = require('path')
-const functions = require('firebase-functions')
-const nodemailer = require('nodemailer')
+const dotenv = require('dotenv').config()
 const next = require('next')
-const admin = require('firebase-admin')
-const express = require('express')()
 const routes = require('./routes')
+const express = require('express')
+const functions = require('firebase-functions')
+const admin = require('firebase-admin')
+
+const stripe = require('stripe')(process.env.STRIPE_API_KEY_SECRET)
+const createPaymentHandler = require('./common').createPaymentHandler
+
 admin.initializeApp()
 
 const dev = process.env.NODE_ENV !== 'production'
@@ -12,51 +16,16 @@ const conf = {distDir: `${path.relative(process.cwd(), __dirname)}/next`}
 const app = next({dev, conf})
 const handler = routes.getRequestHandler(app)
 
-express.get('*', (req, res) => {
+const server = express()
+
+server.use(express.json())
+server.use(express.urlencoded({ extended: true }))
+
+server.post('/api/payment', createPaymentHandler(stripe))
+
+server.get('*', (req, res) => {
     console.log('File: ' + req.originalUrl) // log the page.js file that is being requested
     app.prepare().then(() => handler(req, res))
 })
 
-exports.next = functions.https.onRequest(express)
-
-/*
-const gmailEmail = functions.config().gmail.email
-const gmailPassword = functions.config().gmail.password
-const mailTransport = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: gmailEmail,
-        pass: gmailPassword
-    }
-})
-
-exports.sendWelcomeEmail = functions.auth.user().onCreate(async (user) => {
-    if(!user.email) return null
-
-    const mailOptions = {
-        from: '"Nextbase" <noreply@noreply.com>',
-        to: user.email
-    }
-
-    mailOptions.subject = 'Welcome to Nextbase'
-    mailOptions.text = 'Thanks for joining Nextbase. This is demonstrational email. You will receive no spam from us :)'
-
-    try {
-        await mailTransport.sendMail(mailOptions)
-    } catch(error) {
-        console.error('There was an error while sending the email:', error)
-    }
-
-    return null
-})
-
-//add uploaded img to db
-exports.addUploadedImgToDB = functions.storage.object().onFinalize((object) => {
-    const imgData = {
-        bucket: object.bucket,
-        path: object.name
-    }
-
-    return admin.firestore().collection('images').add(imgData)
-})
-*/
+exports.next = functions.https.onRequest(server)

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import withRedux from 'next-redux-wrapper'
 import createStore from '../lib/store'
 import { ThemeProvider } from 'styled-components'
+import { StripeProvider } from 'react-stripe-elements'
 import Router from 'next/dist/client/router'
 import { PageTransition } from 'next-page-transitions'
 
@@ -15,22 +16,36 @@ const theme = {
 
 class MyApp extends App {
 
+    state = {
+        stripe: null
+    }
+
     componentDidMount() {
-        const { dispatch } = this.props.store
         Router.events.on('routeChangeComplete', () => {
             //scroll to top on page change
             try {
                 window.scrollTo(0, 0)
             } catch(error) {}
         })
+
+        this.loadStripe()
+    }
+
+    loadStripe = () => {
+        const stripeJs = document.createElement('script')
+        stripeJs.src = 'https://js.stripe.com/v3/'
+        stripeJs.async = true
+        stripeJs.onload = () => this.setState({stripe: window.Stripe(process.env.STRIPE_API_KEY)})
+        document.body && document.body.appendChild(stripeJs)
     }
 
     render () {
         const { Component, pageProps, store, router } = this.props
 
         return (
-                <Container>
-                    <ThemeProvider theme={theme}>
+            <Container>
+                <ThemeProvider theme={theme}>
+                    <StripeProvider stripe={this.state.stripe}>
                         <Provider store={store}>
                             <>
                                 <PageTransition
@@ -40,6 +55,7 @@ class MyApp extends App {
                                 >
                                     <Component {...pageProps} key={router.route} />
                                 </PageTransition>
+
                                 <style jsx global>{`
                                   .page-transition-enter {
                                     opacity: .65;
@@ -58,8 +74,9 @@ class MyApp extends App {
                                 `}</style>
                             </>
                         </Provider>
-                    </ThemeProvider>
-                </Container>
+                    </StripeProvider>
+                </ThemeProvider>
+            </Container>
         )
     }
 

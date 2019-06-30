@@ -4,9 +4,10 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts } from '../lib/shop/actions'
+import { getProducts, createPayment } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
+import { Elements } from 'react-stripe-elements'
 import { Router } from '../../functions/routes'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
@@ -14,8 +15,9 @@ import Footer from '../components/Footer'
 import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
-import './cart.scss'
 import Button from '../components/common/Button'
+import CheckoutForm from '../components/cart/CheckoutForm'
+import './cart.scss'
 
 class Cart extends React.Component {
 
@@ -23,6 +25,7 @@ class Cart extends React.Component {
         getProducts: PropTypes.func.isRequired,
         products: PropTypes.arrayOf(PropTypes.object).isRequired,
         signOut: PropTypes.func.isRequired,
+        createPayment: PropTypes.func.isRequired,
         user: PropTypes.object
     }
 
@@ -37,7 +40,7 @@ class Cart extends React.Component {
     }
 
     render = () => {
-        const { user, signOut } = this.props
+        const { user, signOut, createPayment } = this.props
         const { signInVisible, createAccountVisible } = this.state
 
         return (
@@ -66,6 +69,10 @@ class Cart extends React.Component {
                         )}
                     </div>
 
+                    <Elements>
+                        <CheckoutForm createPayment={createPayment} />
+                    </Elements>
+
                     <Footer />
 
                     <Modal noPadding visible={signInVisible} onClose={() => this.setState({signInVisible: false})}>
@@ -89,7 +96,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
-        signOut
+        signOut,
+        createPayment
     }, dispatch)
 )
 
