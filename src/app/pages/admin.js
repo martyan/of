@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts, deleteProduct } from '../lib/shop/actions'
+import { getProducts, deleteProduct, getConfig } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
@@ -14,7 +14,7 @@ import Footer from '../components/Footer'
 import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
-import DNDList from '../components/admin/ProductAdmin'
+import ProductAdmin from '../components/admin/ProductAdmin'
 import Button from '../components/common/Button'
 import EditProduct from '../components/admin/EditProduct'
 import Stock from '../components/admin/Stock'
@@ -25,12 +25,14 @@ class Admin extends React.Component {
 
     static propTypes = {
         getProducts: PropTypes.func.isRequired,
+        getConfig: PropTypes.func.isRequired,
         products: PropTypes.arrayOf(PropTypes.object).isRequired,
         user: PropTypes.object
     }
 
     static getInitialProps = async ({ store }) => {
         await store.dispatch(getProducts())
+        await store.dispatch(getConfig('order'))
         return {}
     }
 
@@ -85,7 +87,7 @@ class Admin extends React.Component {
                     <div className="inner">
                         <Button onClick={() => this.setState({addProductVisible: true})}>Add product</Button>
 
-                        <DNDList
+                        <ProductAdmin
                             products={products}
                             onEdit={productId => this.setState({editProductVisible: true, productId})}
                             onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}
@@ -154,6 +156,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
+        getConfig,
         deleteProduct,
         signOut
     }, dispatch)

@@ -8,7 +8,8 @@ export const initialState = {
     },
     cart: [],
     products: [],
-    product: null
+    product: null,
+    configs: {}
 }
 
 const reducer = (state = initialState, action) => {
@@ -26,6 +27,9 @@ const reducer = (state = initialState, action) => {
             return {...state, product: null}
         case 'GET_PRODUCT_SUCCESS':
             return {...state, product: action.payload}
+
+        case 'GET_CONFIG_SUCCESS':
+            return {...state, configs: {...state.configs, [action.payload.name]: action.payload[action.payload.name]}}
 
         default:
             return state

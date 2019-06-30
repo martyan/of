@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { updateConfig } from '../../lib/shop/actions'
+import { updateConfig, getConfig } from '../../lib/shop/actions'
 import { Link, Router } from '../../../functions/routes'
 import styled from 'styled-components'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import { media } from '../common/variables'
 
-const SortableItem = SortableElement(({ item, index, loading, reorder, setReorder, onStock, onManageImgs, onEdit, onDelete }) => (
+const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder, onStock, onManageImgs, onEdit, onDelete }) => (
     <Product>
         <Head>
             <div className="index">{index + 1}</div>
@@ -32,7 +32,7 @@ const SortableItem = SortableElement(({ item, index, loading, reorder, setReorde
 
         <Actions>
             {reorder ?
-                <button onClick={() => setReorder(!reorder)}>
+                <button onClick={() => onReorder(!reorder)}>
                     <i className="fa fa-arrows-v"></i>
                     <span>Done</span>
                 </button> :
@@ -59,7 +59,7 @@ const SortableItem = SortableElement(({ item, index, loading, reorder, setReorde
                         <i className="fa fa-trash"></i>
                         <span>Delete</span>
                     </button>
-                    <button onClick={() => setReorder(!reorder)}>
+                    <button onClick={() => onReorder(!reorder)}>
                         <i className="fa fa-arrows-v"></i>
                         <span>Reorder</span>
                     </button>
@@ -83,29 +83,51 @@ const SortableList = SortableContainer(({ items, ...props }) => (
     </div>
 ))
 
-const ProductAdmin = ({ products, onEdit, onDelete, onManageImgs, onStock }) => {
+const ProductAdmin = ({ products, onEdit, onDelete, onManageImgs, onStock, updateConfig, getConfig, configs }) => {
     const [items, setItems] = useState([])
     const [reorder, setReorder] = useState(false)
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        setItems(products)
-    }, [products])
+        let items = [...products]
+
+        if(configs.order) {
+            let sortedProducts = []
+            let unsortedProducts = [...products]
+
+            configs.order.forEach(productId => {
+                const index = unsortedProducts.findIndex(product => product.id === productId)
+
+                if(index > -1) {
+                    const product = unsortedProducts.splice(index, 1)[0]
+                    sortedProducts.push(product)
+                }
+            })
+
+            items = sortedProducts
+        }
+
+        setItems(items)
+    }, [products, configs])
 
     const saveReordering = () => {
-        // setLoading(true)
-        //
-        // const data = {
-        //     photos: [...items]
-        // }
-        //
-        // updateProduct(product.id, data)
-        //     .then(getProducts)
-        //     .then(() => {
-        //         setReorder(false)
-        //         setLoading(false)
-        //     })
-        //     .catch(console.error)
+        setLoading(true)
+
+        const data = {
+            name: 'order',
+            order: items.map(item => item.id)
+        }
+
+        updateConfig('order', data)
+            .then(() => getConfig('order'))
+            .then(() => setLoading(false))
+            .catch(console.error)
+    }
+
+    const toggleReorder = (reorder) => {
+        if(!reorder) saveReordering()
+
+        setReorder(reorder)
     }
 
     const onSortEnd = ({ oldIndex, newIndex }) => {
@@ -118,7 +140,7 @@ const ProductAdmin = ({ products, onEdit, onDelete, onManageImgs, onStock }) => 
             onSortEnd={onSortEnd}
             loading={loading}
             reorder={reorder}
-            setReorder={setReorder}
+            onReorder={toggleReorder}
             onStock={onStock}
             onManageImgs={onManageImgs}
             onEdit={onEdit}
@@ -128,6 +150,8 @@ const ProductAdmin = ({ products, onEdit, onDelete, onManageImgs, onStock }) => 
 }
 
 ProductAdmin.propTypes = {
+    updateConfig: PropTypes.func.isRequired,
+    getConfig: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onManageImgs: PropTypes.func.isRequired,
@@ -135,15 +159,18 @@ ProductAdmin.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
+    configs: state.shop.configs
 })
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
-        updateConfig
+        updateConfig,
+        getConfig
     }, dispatch)
 )
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProductAdmin)
+
 
 const Product = styled.div`
     background: white;

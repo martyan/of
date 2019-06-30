@@ -7,6 +7,7 @@ import { createProduct, updateProduct, getProducts } from '../../lib/shop/action
 import Select from 'react-select'
 import Button from '../common/Button'
 import TextInput from '../common/TextInput'
+import { firebase } from '../../lib/firebase'
 import { getSizes } from './Stock'
 
 
@@ -99,6 +100,7 @@ class EditProduct extends Component {
         if(!this.isEditing()) {
             data.category = category.value
             data.photos = []
+            data.createdAt = firebase.firestore.Timestamp.fromDate(new Date())
         }
 
         if(this.isFormValid()) {

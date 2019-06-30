@@ -34,5 +34,15 @@ export const deleteProduct = (productId) => ({
 
 export const getProducts = () => ({
     type: 'GET_PRODUCTS',
-    payload: db.collection('products')/*.orderBy('createdAt', 'desc')*/.get()
+    payload: db.collection('products').orderBy('createdAt', 'desc').get()
+})
+
+export const getConfig = (configId) => ({
+    type: 'GET_CONFIG',
+    payload: db.collection('configs').doc(configId).get()
+})
+
+export const updateConfig = (configId, config) => ({
+    type: 'UPDATE_CONFIG',
+    payload: db.collection('configs').doc(configId).set(config)
 })
