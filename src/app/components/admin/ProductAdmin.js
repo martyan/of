@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import { media } from '../common/variables'
+import sortProducts from '../utils/sortProducts'
 
 const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder, onStock, onManageImgs, onEdit, onDelete }) => (
     <Product>
@@ -90,23 +91,7 @@ const ProductAdmin = ({ products, onEdit, onDelete, onManageImgs, onStock, updat
 
     useEffect(() => {
         let items = [...products]
-
-        if(configs.order) {
-            let sortedProducts = []
-            let unsortedProducts = [...products]
-
-            configs.order.forEach(productId => {
-                const index = unsortedProducts.findIndex(product => product.id === productId)
-
-                if(index > -1) {
-                    const product = unsortedProducts.splice(index, 1)[0]
-                    sortedProducts.push(product)
-                }
-            })
-
-            items = sortedProducts
-        }
-
+        if(configs.order) items = sortProducts(items, configs.order)
         setItems(items)
     }, [products, configs])
 

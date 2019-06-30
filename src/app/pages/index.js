@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts } from '../lib/shop/actions'
+import { getConfig, getProducts } from '../lib/shop/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
@@ -25,6 +25,7 @@ class Home extends React.Component {
 
     static getInitialProps = async ({ store }) => {
         await store.dispatch(getProducts())
+        await store.dispatch(getConfig('order'))
         return {}
     }
 
@@ -110,12 +111,7 @@ class Home extends React.Component {
                         </div>
                     </Slider>
 
-
                     <ProductList products={products} />
-
-                    {/*<AddTodo />*/}
-
-                    {/*<TodoList />*/}
 
                     <Footer />
 

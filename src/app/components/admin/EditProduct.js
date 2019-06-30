@@ -32,12 +32,14 @@ const EditProduct = ({ product, close, createProduct, updateProduct, getProducts
     const isEditing = !!product
 
     useEffect(() => {
-        setCategory(getCategoryOptions().find(option => option.value === product.category))
-        setName(product.name)
-        setDescription(product.description)
-        setQuantity(product.quantity)
-        setGender(product.gender)
-        setPrice(String(product.price))
+        if(isEditing) {
+            setCategory(getCategoryOptions().find(option => option.value === product.category))
+            setName(product.name)
+            setDescription(product.description)
+            setQuantity(product.quantity)
+            setGender(product.gender)
+            setPrice(String(product.price))
+        }
     }, [product])
 
     const handleCategoryChange = (category) => {
