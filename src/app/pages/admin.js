@@ -86,7 +86,7 @@ class Admin extends React.Component {
                         <Button onClick={() => this.setState({addProductVisible: true})}>Add product</Button>
 
                         <DNDList
-                            items={products}
+                            products={products}
                             onEdit={productId => this.setState({editProductVisible: true, productId})}
                             onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}
                             onDelete={productId => this.setState({deleteProductVisible: true, productId})}
