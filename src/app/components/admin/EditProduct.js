@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -17,77 +17,43 @@ const getCategoryOptions = () => [
     { value: 'skateboard', label: 'Skate deck' }
 ]
 
-class EditProduct extends Component {
+const EditProduct = ({ product, close, createProduct, updateProduct, getProducts }) => {
+    const [category, setCategory] = useState('')
+    const [name, setName] = useState('')
+    const [description, setDescription] = useState('')
+    const [quantity, setQuantity] = useState({})
+    const [gender, setGender] = useState('')
+    const [price, setPrice] = useState('')
 
-    static propTypes = {
-        close: PropTypes.func.isRequired,
-        product: PropTypes.object
-    }
+    const [errors, setErrors] = useState({})
+    const [submitted, setSubmitted] = useState(false)
+    const [loading, setLoading] = useState(false)
 
-    state = {
-        category: '',
-        name: '',
-        description: '',
-        quantity: {},
-        gender: '',
-        price: '',
-        nameError: '',
-        priceError: '',
-        serverError: '',
-        submitted: false,
-        loading: false,
-    }
+    const isEditing = !!product
 
-    componentDidMount() {
-        if(this.isEditing()) this.loadForm()
-    }
+    useEffect(() => {
+        setCategory(getCategoryOptions().find(option => option.value === product.category))
+        setName(product.name)
+        setDescription(product.description)
+        setQuantity(product.quantity)
+        setGender(product.gender)
+        setPrice(String(product.price))
+    }, [product])
 
-    loadForm = () => {
-        const { category, name, description, quantity, gender, price } = this.props.product
-
-        this.setState({
-            category: getCategoryOptions().find(option => option.value === category),
-            name,
-            description,
-            quantity,
-            gender,
-            price: String(price)
-        })
-    }
-
-    handleCategoryChange = (category) => {
+    const handleCategoryChange = (category) => {
         const sizes = getSizes(category.value)
 
-        const quantity = {}
-        sizes.map(size => quantity[size.value] = 0)
+        const updatedQuantity = {}
+        sizes.map(size => updatedQuantity[size.value] = 0)
 
-        this.setState({
-            category,
-            quantity
-        })
+        setCategory(category)
+        setQuantity(updatedQuantity)
     }
 
-    handleQuantityChange = (key, value) => {
-        const { quantity } = this.state
-
-        if(value < 0) return
-
-        this.setState({
-            quantity: {
-                ...quantity,
-                [key]: value
-            }
-        })
-    }
-
-    isEditing = () => !!this.props.product
-
-    handleSubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault()
-        const { createProduct, updateProduct, getProducts, close, product } = this.props
-        const { category, name, description, quantity, gender, price } = this.state
 
-        this.setState({submitted: true})
+        setSubmitted(true)
 
         const data = {
             name,
@@ -97,31 +63,31 @@ class EditProduct extends Component {
             price: parseInt(price)
         }
 
-        if(!this.isEditing()) {
+        if(!isEditing) {
             data.category = category.value
             data.photos = []
             data.createdAt = firebase.firestore.Timestamp.fromDate(new Date())
         }
 
-        if(this.isFormValid()) {
-            this.setState({ loading: true })
+        if(isFormValid()) {
+            setLoading(true)
 
-            if(this.isEditing()) {
+            if(isEditing) {
                 return updateProduct(product.id, data)
                     .then(getProducts)
                     .then(close)
-                    .catch(this.handleError)
+                    .catch(handleError)
             }
 
             return createProduct(data)
                 .then(getProducts)
                 .then(close)
-                .catch(this.handleError)
+                .catch(handleError)
         }
 
     }
 
-    getValidation = (type, value) => {
+    const getValidation = (type, value) => {
         switch(type) {
             case 'name':
                 if(!value.length) return 'Field is required'
@@ -134,19 +100,17 @@ class EditProduct extends Component {
         }
     }
 
-    validateInput = (key, value) => {
-        const error = this.getValidation(key, value)
-        this.setState({[key+'Error']: error})
+    const validateInput = (key, value) => {
+        const error = getValidation(key, value)
+        setErrors({...errors, [key]: error})
         return error
     }
 
-    isFormValid = () => {
-        const { category, name, price } = this.state
-
-        const nameError = this.validateInput('name', name)
+    const isFormValid = () => {
+        const nameError = validateInput('name', name)
         const nameValid = nameError.length === 0
 
-        const priceError = this.validateInput('price', price)
+        const priceError = validateInput('price', price)
         const priceValid = priceError.length === 0
 
         const categoryValid = category !== ''
@@ -154,103 +118,77 @@ class EditProduct extends Component {
         return nameValid && categoryValid && priceValid
     }
 
-    handleError = (error) => {
-        this.setState({serverError: error.code, loading: false})
+    const handleError = (error) => {
+        setErrors({...errors, server: error.code})
+        setLoading(false)
     }
 
-    render = () => {
-        const { product } = this.props
-        const { category, name, description, quantity, gender, price, nameError, priceError, loading, submitted } = this.state
+    const categoryOptions = getCategoryOptions()
 
-        const categoryOptions = getCategoryOptions()
+    const isGenderSet = gender !== ''
+    const isCategorySet = category !== ''
 
-        const sizes = getSizes(category.value)
+    return (
+        <div>
+            <Form onSubmit={handleSubmit}>
+                <h1>{isEditing ? 'Edit product' : 'Add product'}</h1>
 
-        const isGenderSet = gender !== ''
-        const isCategorySet = category !== ''
+                <div>
+                    <Gender type="button" onClick={() => setGender('men')} selected={gender === 'men'}>Men</Gender>
+                    <Gender type="button" onClick={() => setGender('women')} selected={gender === 'women'}>Women</Gender>
+                    <Gender type="button" onClick={() => setGender('uni')} selected={gender === 'uni'}>UNI</Gender>
+                </div>
 
-        return (
-            <div>
-                <Form onSubmit={this.handleSubmit}>
-                    <h1>{product ? 'Edit product' : 'Add product'}</h1>
+                {(isGenderSet && !isEditing) && (  //we don't want to change category when editing because it would change the stock
+                    <Select
+                        options={categoryOptions}
+                        value={category}
+                        onChange={handleCategoryChange}
+                        placeholder="Select category"
+                        className="category"
+                        classNamePrefix="category-select"
+                        isSearchable={false}
+                    />
+                )}
 
-                    <div>
-                        <Gender type="button" onClick={() => this.setState({gender: 'men'})} selected={gender === 'men'}>Men</Gender>
-                        <Gender type="button" onClick={() => this.setState({gender: 'women'})} selected={gender === 'women'}>Women</Gender>
-                        <Gender type="button" onClick={() => this.setState({gender: 'uni'})} selected={gender === 'uni'}>UNI</Gender>
-                    </div>
-
-                    {(isGenderSet && !this.isEditing()) && (  //we don't want to change category when editing because it would change the stock
-                        <Select
-                            options={categoryOptions}
-                            value={category}
-                            onChange={this.handleCategoryChange}
-                            placeholder="Select category"
-                            className="category"
-                            classNamePrefix="category-select"
-                            isSearchable={false}
+                {isCategorySet && (
+                    <>
+                        <TextInput
+                            type="text"
+                            placeholder="Name"
+                            value={name}
+                            onChange={setName}
+                            error={submitted ? errors.name : ''}
+                            validate={value => validateInput('name', value)}
                         />
-                    )}
 
-                    {isCategorySet && (
-                        <>
+                        <TextArea
+                            placeholder="Description"
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                        />
+
+                        <Price>
+                            <div className="label">CZK</div>
                             <TextInput
-                                type="text"
-                                placeholder="Name"
-                                value={name}
-                                onChange={name => this.setState({name})}
-                                error={submitted ? nameError : ''}
-                                validate={value => this.validateInput('name', value)}
+                                type="number"
+                                placeholder="Price"
+                                value={price}
+                                onChange={setPrice}
+                                error={submitted ? errors.price : ''}
+                                validate={value => validateInput('price', value)}
+                                min={0}
+                                max={99999}
+                                style={{marginBottom: '30px'}}
                             />
+                        </Price>
 
-                            <TextArea
-                                placeholder="Description"
-                                value={description}
-                                onChange={e => this.setState({description: e.target.value})}
-                            />
+                        <Button loading={loading} style={{marginBottom: 0}}>{isEditing ? 'Save' : 'Add product'}</Button>
+                    </>
+                )}
+            </Form>
 
-                            <Price>
-                                <div className="label">CZK</div>
-                                <TextInput
-                                    type="number"
-                                    placeholder="Price"
-                                    value={price}
-                                    onChange={price => this.setState({price})}
-                                    error={submitted ? priceError : ''}
-                                    validate={value => this.validateInput('price', value)}
-                                    min={0}
-                                    max={99999}
-                                    style={{marginBottom: '30px'}}
-                                />
-                            </Price>
-
-                            {!this.isEditing && (
-                                <Sizes>
-                                    <p>Stock</p>
-                                    {sizes.map(size => (
-                                        <Size key={size.value} highlighted={quantity[size.value] > 0}>
-                                            <label>{size.label}</label>
-                                            <div>
-                                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] - 1)}>-</button>
-                                                <input
-                                                    type="number"
-                                                    value={quantity[size.value]}
-                                                    onChange={e => this.handleQuantityChange(size.value, e.target.value)}
-                                                    min={0}
-                                                />
-                                                <button type="button" onClick={() => this.handleQuantityChange(size.value, quantity[size.value] + 1)}>+</button>
-                                            </div>
-                                        </Size>
-                                    ))}
-                                </Sizes>
-                            )}
-
-                            <Button loading={loading} style={{marginBottom: 0}}>{product ? 'Save' : 'Add product'}</Button>
-                        </>
-                    )}
-                </Form>
-
-                <style jsx global>{`
+            <style jsx global>{`
                      .category {
                         margin-bottom: 20px !important;
                      }
@@ -296,10 +234,13 @@ class EditProduct extends Component {
                         color: white !important;
                      }
                 `}</style>
-            </div>
-        )
-    }
+        </div>
+    )
+}
 
+EditProduct.propTypes = {
+    close: PropTypes.func.isRequired,
+    product: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({
@@ -373,69 +314,5 @@ const Price = styled.div`
         text-align: center;
         font-weight: 300;
         color: #222;
-    }
-`
-
-const Sizes = styled.div`
-    margin-bottom: 50px;
-    
-    p {
-        font-weight: 300;
-        color: #222;
-    }
-`
-
-const Size = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin: 10px;
-    
-    label {
-        flex-basis: 28px;
-        height: 28px;
-        line-height: 25px;
-        text-align: center;
-        font-weight: 300;
-        font-size: .95em;
-        color: ${({highlighted}) => highlighted ? 'white' : '#222'};
-        background: ${({highlighted}) => highlighted ? '#222' : 'white'};
-        border: 1px solid #222;
-        transition: .2s ease;
-    }
-    
-    div {
-        display: flex;
-        justify-content: flex-end;
-        flex-basis: 50%;
-    }
-    
-    input {
-        width: 100px;
-        padding: 5px;
-        border: 1px solid #222;
-        color: #222;
-        text-align: center;
-        font-weight: 300;
-    }    
-    
-    button {
-        flex-basis: 40px;
-        flex-shrink: 0;
-        background: white;
-        border: 1px solid #222;
-        cursor: pointer;
-        
-        &:hover {
-            background: #444;
-            color: white;
-        }
-        
-        &:first-child {
-            border-right: 0;
-        }
-        
-        &:last-child {
-            border-left: 0;
-        }
     }
 `

@@ -107,7 +107,7 @@ class Admin extends React.Component {
                     <Modal visible={editProductVisible} onClose={() => this.setState({editProductVisible: false})}>
                         <EditProduct
                             product={selectedProduct}
-                            close={() => this.setState({stockVisible: false})}
+                            close={() => this.setState({editProductVisible: false})}
                         />
                     </Modal>
 
