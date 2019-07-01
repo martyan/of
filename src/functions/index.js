@@ -8,6 +8,7 @@ const admin = require('firebase-admin')
 
 const stripe = require('stripe')(process.env.STRIPE_API_KEY_SECRET)
 const createPaymentHandler = require('./common').createPaymentHandler
+const createOrderHandler = require('./common').createOrderHandler
 
 admin.initializeApp()
 
@@ -22,6 +23,7 @@ server.use(express.json())
 server.use(express.urlencoded({ extended: true }))
 
 server.post('/api/payment', createPaymentHandler(stripe))
+server.post('/api/order', createOrderHandler(admin))
 
 server.get('*', (req, res) => {
     console.log('File: ' + req.originalUrl) // log the page.js file that is being requested

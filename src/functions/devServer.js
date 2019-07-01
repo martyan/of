@@ -2,9 +2,13 @@ const dotenv = require('dotenv').config()
 const next = require('next')
 const routes = require('./routes')
 const express = require('express')
+const admin = require('firebase-admin')
 
 const stripe = require('stripe')(process.env.STRIPE_API_KEY_SECRET)
 const createPaymentHandler = require('./common').createPaymentHandler
+const createOrderHandler = require('./common').createOrderHandler
+
+admin.initializeApp()
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
@@ -18,6 +22,7 @@ app.prepare().then(() => {
     server.use(express.urlencoded({ extended: true }))
 
     server.post('/api/payment', createPaymentHandler(stripe))
+    server.post('/api/order', createOrderHandler(admin))
 
     server.get('*', handler)
 

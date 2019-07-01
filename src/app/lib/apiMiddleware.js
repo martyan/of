@@ -21,7 +21,7 @@ const callApi = ({ endpoint, method, data, download }) => {
 
     const config = {
         method,
-        url: '/api' + endpoint,
+        url: 'https://old-felony.firebaseapp.com/api' + endpoint,
         data: data || null,
         validateStatus: () => true,
         headers,

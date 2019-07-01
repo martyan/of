@@ -82,3 +82,12 @@ export const createPayment = (data) => ({
         data
     }
 })
+
+export const createOrder = (data) => ({
+    [CALL_API]: {
+        type: 'CREATE_ORDER',
+        endpoint: `/order`,
+        method: 'POST',
+        data
+    }
+})

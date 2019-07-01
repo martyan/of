@@ -36,6 +36,15 @@ const createPaymentHandler = (stripe) => async (req, res) => {
     }
 }
 
+const createOrderHandler = (admin) => async (req, res) => {
+
+    admin.firestore().collection('awesomeness').add({fuck: 'off'})
+
+    return res.send({ success: true })
+}
+
+
 module.exports = {
-    createPaymentHandler
+    createPaymentHandler,
+    createOrderHandler
 }

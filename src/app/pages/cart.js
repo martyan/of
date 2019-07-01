@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts, createPayment, removeFromCart } from '../lib/shop/actions'
+import { getProducts, createPayment, removeFromCart, createOrder } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
 import { Elements } from 'react-stripe-elements'
@@ -24,6 +24,7 @@ class Cart extends React.Component {
     static propTypes = {
         getProducts: PropTypes.func.isRequired,
         products: PropTypes.arrayOf(PropTypes.object).isRequired,
+        createOrder: PropTypes.func.isRequired,
         removeFromCart: PropTypes.func.isRequired,
         signOut: PropTypes.func.isRequired,
         createPayment: PropTypes.func.isRequired,
@@ -38,6 +39,13 @@ class Cart extends React.Component {
     state = {
         signInVisible: false,
         createAccountVisible: false
+    }
+
+    createOrder = () => {
+        const { createOrder } = this.props
+
+        createOrder({neco: 'hovno'})
+            .catch(console.error)
     }
 
     render = () => {
@@ -77,6 +85,8 @@ class Cart extends React.Component {
                                 </div>
                             )
                         })}
+
+                        <Button onClick={this.createOrder}>Create order</Button>
 
                         {!user ? (
                             <>
@@ -121,7 +131,8 @@ const mapDispatchToProps = (dispatch) => (
         getProducts,
         signOut,
         createPayment,
-        removeFromCart
+        removeFromCart,
+        createOrder
     }, dispatch)
 )
 
