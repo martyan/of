@@ -8,12 +8,18 @@ import { Router } from '../../../functions/routes'
 import ImageGallery from 'react-image-gallery'
 import { addToCart } from '../../lib/shop/actions'
 import 'react-image-gallery/styles/scss/image-gallery.scss'
+import { getSizes } from '../admin/Stock'
 
 const Product = ({ product, addToCart }) => {
-    const [size, setSize] = useState('m')
+    const [size, setSize] = useState('')
 
     const back = () => {
         Router.pushRoute('/shop')
+    }
+
+    const handleAddToCart = () => {
+        if(size === '') return
+        addToCart({id: product.id, size})
     }
 
     const isActiveSize = s => s === size
@@ -31,6 +37,8 @@ const Product = ({ product, addToCart }) => {
         thumbnailPosition: 'left'
     }
 
+    const sizes = getSizes(product.category)
+
     return (
         <div>
             <Wrapper>
@@ -40,45 +48,43 @@ const Product = ({ product, addToCart }) => {
                     <ImageGallery {...settings} items={images} />
                 </Gallery>
 
-                <div>
+                <Specs>
                     <NameTablet><Back onClick={back}>{chevronLeft}</Back> {product.name}</NameTablet>
                     <Description>{product.description}</Description>
                     <Price>CZK {product.price}</Price>
                     <Sizes>
-                        <Size className={isActiveSize('s') ? 'size active' : 'size'} onClick={() => setSize('s')}>S</Size>
-                        <Size className={isActiveSize('m') ? 'size active' : 'size'} onClick={() => setSize('m')}>M</Size>
-                        <Size className={isActiveSize('l') ? 'size active' : 'size'} onClick={() => setSize('l')}>L</Size>
-                        <Size className={isActiveSize('xl') ? 'size active' : 'size'} onClick={() => setSize('xl')}>XL</Size>
+                        {sizes.map(size => (
+                            <Size
+                                key={size.value}
+                                className={isActiveSize(size.value) ? 'size active' : 'size'}
+                                onClick={() => setSize(size.value)}>{size.label}
+                            </Size>
+                        ))}
                     </Sizes>
-                    <AddToCart onClick={() => addToCart({id: 'hovno'})}>Add to cart</AddToCart>
-                </div>
+                    <AddToCart onClick={handleAddToCart}>Add to cart</AddToCart>
+                </Specs>
             </Wrapper>
 
             <style jsx global>{`
                 .image-gallery-slide {
                     text-align: center !important;
                 }
-
                 .image-gallery-slide img{
                     width: auto !important;
                     max-height: 320px !important;
                 }
-
                 @media (min-width: 500px) {
                     .image-gallery-slide img {
                         width: 100% !important;
                         max-height: none !important;
                     }
                 }
-
                 .image-gallery-fullscreen-button:hover::before, .image-gallery-play-button:hover::before, .image-gallery-left-nav:hover::before, .image-gallery-right-nav:hover::before {
                     color: #222 !important;
                 }
-
                 .image-gallery-fullscreen-button::before, .image-gallery-play-button::before, .image-gallery-left-nav::before, .image-gallery-right-nav::before {
                     text-shadow: 0 0 2px #999 !important;
                 }
-
                 .image-gallery-thumbnail.active {
                     border: 2px solid #222 !important;
                 }
@@ -130,6 +136,10 @@ const Gallery = styled.div`
         width: calc(60% - 50px);
         margin-right: 50px;
     }
+`
+
+const Specs = styled.div`
+    flex: 1;
 `
 
 const NameMobile = styled.div`
@@ -211,6 +221,7 @@ const Size = styled.button`
 `
 
 const AddToCart = styled.button`
+    display: block;
     width: 100%;
     margin: 0 auto;
     padding: 10px;
@@ -229,6 +240,5 @@ const AddToCart = styled.button`
     
     ${media.tablet} {
         margin: 0;
-        max-width: 320px;
     }
 `

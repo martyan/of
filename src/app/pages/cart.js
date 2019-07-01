@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts, createPayment } from '../lib/shop/actions'
+import { getProducts, createPayment, removeFromCart } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
 import { Elements } from 'react-stripe-elements'
@@ -24,6 +24,7 @@ class Cart extends React.Component {
     static propTypes = {
         getProducts: PropTypes.func.isRequired,
         products: PropTypes.arrayOf(PropTypes.object).isRequired,
+        removeFromCart: PropTypes.func.isRequired,
         signOut: PropTypes.func.isRequired,
         createPayment: PropTypes.func.isRequired,
         user: PropTypes.object
@@ -40,8 +41,15 @@ class Cart extends React.Component {
     }
 
     render = () => {
-        const { user, signOut, createPayment } = this.props
+        const { user, signOut, createPayment, cart, products, removeFromCart } = this.props
         const { signInVisible, createAccountVisible } = this.state
+
+        const uniqueProductsInCart = cart.filter((item, index) => {
+            const upperCartPart = cart.slice(index + 1, cart.length)
+            const anotherItemInCart = upperCartPart.find(anotherItem => (anotherItem.id === item.id && anotherItem.size === item.size))
+
+            return !anotherItemInCart
+        })
 
         return (
             <PageWrapper>
@@ -56,6 +64,20 @@ class Cart extends React.Component {
                     <Header />
 
                     <div className="inner">
+
+                        {uniqueProductsInCart.map(item => {
+                            const product = products.find(product => product.id === item.id)
+                            const count = cart.filter(cartItem => cartItem.id === item.id && cartItem.size === item.size).length
+
+                            return (
+                                <div key={item.id}>
+                                    <div>{product.name} [{item.size}]</div>
+                                    <div>{count}x</div>
+                                    <button onClick={() => removeFromCart(item)}>Remove</button>
+                                </div>
+                            )
+                        })}
+
                         {!user ? (
                             <>
                                 <Button onClick={() => this.setState({createAccountVisible: true})}>Create account</Button>
@@ -90,14 +112,16 @@ class Cart extends React.Component {
 
 const mapStateToProps = (state) => ({
     user: state.auth.user,
-    products: state.shop.products
+    products: state.shop.products,
+    cart: state.shop.cart
 })
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
         signOut,
-        createPayment
+        createPayment,
+        removeFromCart
     }, dispatch)
 )
 

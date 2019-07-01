@@ -7,6 +7,7 @@ import { ThemeProvider } from 'styled-components'
 import { StripeProvider } from 'react-stripe-elements'
 import Router from 'next/dist/client/router'
 import { PageTransition } from 'next-page-transitions'
+import { setCart } from '../lib/shop/actions'
 
 const theme = {
     colors: {
@@ -29,6 +30,15 @@ class MyApp extends App {
         })
 
         this.loadStripe()
+        this.loadFromLS()
+    }
+
+    loadFromLS = () => {
+        try {
+            const { store } = this.props
+            const cart = localStorage.getItem('cart')
+            if(cart) store.dispatch(setCart(JSON.parse(cart)))
+        } catch(error) {}
     }
 
     loadStripe = () => {

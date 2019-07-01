@@ -1,3 +1,5 @@
+import { getLastIndexInCart, removeLastProductInCart } from './actions'
+
 export const initialState = {
     filters: {
         men: true,
@@ -17,8 +19,15 @@ const reducer = (state = initialState, action) => {
         case 'SET_FILTER':
             return {...state, filters: {...state.filters, [action.filter.key]: action.filter.value}}
 
+        case 'SET_CART':
+            return {...state, cart: action.cart}
+
         case 'ADD_TO_CART':
             return {...state, cart: [...state.cart, action.product]}
+
+        case 'REMOVE_FROM_CART':
+            const updatedCart = removeLastProductInCart(action.product, state.cart)
+            return {...state, cart: updatedCart}
 
         case 'GET_PRODUCTS_SUCCESS':
             return {...state, products: action.payload}

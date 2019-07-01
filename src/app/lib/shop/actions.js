@@ -1,7 +1,33 @@
 import { db } from '../firebase'
 import { CALL_API } from '../apiMiddleware'
 
-export const addToCart = (product) => ({ type: 'ADD_TO_CART', product })
+export const removeLastProductInCart = (product, cart) => {
+    const index = cart.slice().reverse().findIndex(item => item.id === product.id && item.size === product.size)
+    const lastIndex = index >= 0 ? cart.length - 1 - index : index
+
+    return cart.filter((item, i) => i !== lastIndex)
+}
+
+export const setCart = (cart) => ({ type: 'SET_CART', cart })
+
+export const addToCart = (product) => (dispatch, getState) => {
+    try {
+        const { cart } = getState().shop
+        localStorage.setItem('cart', JSON.stringify([...cart, product]))
+    } catch(error) {}
+
+    dispatch({ type: 'ADD_TO_CART', product })
+}
+
+export const removeFromCart = (product) => (dispatch, getState) => {
+    try {
+        const { cart } = getState().shop
+        const updatedCart = removeLastProductInCart(product, cart)
+        localStorage.setItem('cart', JSON.stringify(updatedCart))
+    } catch(error) { console.log(error)}
+
+    dispatch({ type: 'REMOVE_FROM_CART', product })
+}
 
 export const setFilter = (key, value) => ({ type: 'SET_FILTER', filter: {key, value} })
 

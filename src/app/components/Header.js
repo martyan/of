@@ -60,7 +60,7 @@ class Header extends React.Component {
                         </Nav>
 
                         <Cart onClick={() => Router.pushRoute('/cart')}>
-                            {cart.length > 0 && <Count>{cart.length}</Count>}
+                            {(cart && cart.length > 0) && <Count>{cart.length}</Count>}
                             <img src={cartIcon} />
                         </Cart>
 
@@ -158,7 +158,7 @@ const Nav = styled.div`
         }
 
         &:hover {
-            background: #444;
+            background: #222;
             color: white;
         }
 
