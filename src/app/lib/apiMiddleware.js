@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 export const CALL_API = 'Call API'
+export const ROOT_URI = process.env.NODE_ENV === 'production' ? '/api' : `https://${process.env.FIREBASE_AUTH_DOMAIN}/api`
 
 const callApi = ({ endpoint, method, data, download }) => {
     const headers = {}
@@ -21,7 +22,7 @@ const callApi = ({ endpoint, method, data, download }) => {
 
     const config = {
         method,
-        url: 'https://old-felony.firebaseapp.com/api' + endpoint,
+        url: ROOT_URI + endpoint,
         data: data || null,
         validateStatus: () => true,
         headers,

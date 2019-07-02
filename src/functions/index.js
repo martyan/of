@@ -3,6 +3,7 @@ const dotenv = require('dotenv').config()
 const next = require('next')
 const routes = require('./routes')
 const express = require('express')
+const cors = require('cors')({ origin: true })
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 
@@ -19,6 +20,7 @@ const handler = routes.getRequestHandler(app)
 
 const server = express()
 
+server.use(cors)
 server.use(express.json())
 server.use(express.urlencoded({ extended: true }))
 
