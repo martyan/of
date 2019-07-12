@@ -55,11 +55,10 @@ const createPaymentHandler = (stripe) => async (req, res) => {
 }
 
 const createOrderHandler = (admin) => async (req, res) => {
-    const { currency, products } = req.body
+    const { currency, products: requestedProducts } = req.body
 
-    const uniqueProducts = [...new Set(products.map(product => product.id))]
-    const getPromises = uniqueProducts.map(productId => admin.firestore().collection('products').doc(productId).get())
-    const results = await Promise.all(getPromises)
+    const uniqueProducts = [...new Set(requestedProducts.map(product => product.id))]
+    const products = await Promise.all(uniqueProducts.map(productId => admin.firestore().collection('products').doc(productId).get()))
 
     const order = {
         currency,
@@ -71,47 +70,54 @@ const createOrderHandler = (admin) => async (req, res) => {
     let errors = []
     let updatedProducts = []
 
-    results.forEach(async (result) => {
-        const orderedProduct = getData(result)
+    products.forEach(async (product) => {
+        const productDetail = getData(product)
 
-        const productSizes = products
-            .filter(product => product.id === orderedProduct.id)
+        const productSizes = requestedProducts
+            .filter(product => product.id === productDetail.id)
             .map(product => product.size)
 
         const uniqueSizes = [...new Set(productSizes)]
 
-        updatedProducts = uniqueSizes.forEach(size => {
-            const orderedQuantity = products.filter(product => product.size === size).length
+        uniqueSizes.forEach(size => {
+            const requestedQuantity = requestedProducts.filter(product => product.size === size).length
 
-            if(!orderedProduct.quantity.hasOwnProperty(size)) return errors.push(`Product '${orderedProduct.name}' isn't stocked in size '${size}'`)
-            else if(orderedQuantity > orderedProduct.quantity[size]) return errors.push(`Product '${orderedProduct.name}' isn't stocked in size '${size}' in required amount`)
+            if(!productDetail.quantity.hasOwnProperty(size)) return errors.push(`Product '${productDetail.name}' isn't stocked in size '${size}'`)
+            else if(requestedQuantity > productDetail.quantity[size]) return errors.push(`Product '${productDetail.name}' isn't stocked in size '${size}' in required amount`)
 
             if(errors.length) return
 
             const updatedProduct = {
                 quantity: {
-                    ...orderedProduct.quantity,
-                    [size]: orderedProduct.quantity[size] - orderedQuantity
+                    ...productDetail.quantity,
+                    [size]: productDetail.quantity[size] - requestedQuantity
                 }
             }
 
-            order.products.push({id: orderedProduct.id, size, amount: orderedQuantity, price: orderedProduct.price})
-            order.totalPrice += (orderedProduct.price * orderedQuantity)
+            order.products.push({ id: productDetail.id, size, amount: requestedQuantity, price: productDetail.price })
+            order.totalPrice += (productDetail.price * requestedQuantity)
 
-            updatedProducts.push({ id: orderedProduct.id, data: updatedProduct })
+            updatedProducts.push({ id: productDetail.id, data: updatedProduct })
         })
     })
 
     if(errors.length > 0) return res.status(400).send(errors)
 
-    await Promise.all(updatedProducts.map(product => admin.firestore().collection('products').doc(product.id).update(product.data)))
+    const handleError = () => {
+        res.status(400)
+        return res.render('error', { error: 'Failed to write to database.' })
+    }
 
-    admin.firestore().collection('orders').add(order)
-        .then(docRef => res.send({ success: true, order: docRef.id }))
-        .catch(error => {
-            res.status(400)
-            return res.render('error', { error: 'Failed to write to database.' })
-        })
+    const createOrder = (order) => {
+        admin.firestore().collection('orders').add(order)
+            .then(docRef => res.send({ success: true, order: docRef.id }))
+            .catch(handleError)
+    }
+
+    Promise
+        .all(updatedProducts.map(product => admin.firestore().collection('products').doc(product.id).update(product.data)))
+        .then(createOrder)
+        .catch(handleError)
 }
 
 
