@@ -108,15 +108,10 @@ const createOrderHandler = (admin) => async (req, res) => {
         return res.render('error', { error: 'Failed to write to database.' })
     }
 
-    const createOrder = (order) => {
-        admin.firestore().collection('orders').add(order)
-            .then(docRef => res.send({ success: true, order: docRef.id }))
-            .catch(handleError)
-    }
-
     Promise
         .all(updatedProducts.map(product => admin.firestore().collection('products').doc(product.id).update(product.data)))
-        .then(createOrder)
+        .then(() => admin.firestore().collection('orders').add(order))
+        .then(docRef => res.send({ success: true, order: docRef.id }))
         .catch(handleError)
 }
 
