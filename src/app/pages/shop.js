@@ -22,8 +22,11 @@ class Shop extends React.Component {
     }
 
     static getInitialProps = async ({ store }) => {
-        await store.dispatch(getProducts())
-        await store.dispatch(getConfig('order'))
+        await Promise.all([
+            store.dispatch(getProducts()),
+            store.dispatch(getConfig('order'))
+        ])
+
         return {}
     }
 

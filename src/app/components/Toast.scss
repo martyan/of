@@ -1,0 +1,24 @@
+:global {
+
+    .Toastify__toast {
+        margin-bottom: .75rem;
+        padding: 10px;
+        font-size: .9em;
+        font-weight: 300;
+    }
+
+    .Toastify__toast--error {
+        background: #D45853;
+    }
+
+    .Toastify__toast--info {
+        background: rgba(#222, .95);
+        color: white;
+    }
+
+    .Toastify__toast-body b {
+        font-size: 1.05em;
+        marign: 0 2px;
+    }
+
+}

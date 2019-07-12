@@ -1,17 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import styled from 'styled-components'
 import { media } from '../common/variables'
 import { Router } from '../../../functions/routes'
-import ImageGallery from 'react-image-gallery'
 import { addToCart } from '../../lib/shop/actions'
-import 'react-image-gallery/styles/scss/image-gallery.scss'
 import { getSizes } from '../admin/Stock'
+import { toast } from 'react-toastify'
+import Toast from '../Toast'
+import ImageGallery from 'react-image-gallery'
+import 'react-image-gallery/styles/scss/image-gallery.scss'
 
 const Product = ({ product, addToCart }) => {
     const [size, setSize] = useState('')
+
+    const sizes = getSizes(product.category)
+
+    useEffect(() => {
+        setSize(sizes[0].value)
+    }, [])
 
     const back = () => {
         Router.pushRoute('/shop')
@@ -20,6 +28,7 @@ const Product = ({ product, addToCart }) => {
     const handleAddToCart = () => {
         if(size === '') return
         addToCart({id: product.id, size})
+        toast.info(<Toast text={`_${product.name}_ (size _${size}_) was added to cart`} />)
     }
 
     const isActiveSize = s => s === size
@@ -37,8 +46,6 @@ const Product = ({ product, addToCart }) => {
         thumbnailPosition: 'left'
     }
 
-    const sizes = getSizes(product.category)
-
     return (
         <div>
             <Wrapper>
@@ -53,7 +60,7 @@ const Product = ({ product, addToCart }) => {
                     <Description>{product.description}</Description>
                     <Price>CZK {product.price}</Price>
                     <Sizes>
-                        {sizes.map(size => (
+                        {sizes.map((size) => (
                             <Size
                                 key={size.value}
                                 className={isActiveSize(size.value) ? 'size active' : 'size'}

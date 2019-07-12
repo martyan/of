@@ -4,10 +4,9 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts, createPayment, removeFromCart, createOrder } from '../lib/shop/actions'
+import { getProducts, removeFromCart, createOrder } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
-import { Elements } from 'react-stripe-elements'
 import { Router } from '../../functions/routes'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
@@ -16,16 +15,10 @@ import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
 import Button from '../components/common/Button'
-import CheckoutForm from '../components/cart/CheckoutForm'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/scss/main.scss'
+import Toast from '../components/Toast'
+import { toast } from 'react-toastify'
+import { ToastContainer } from '../components/Toast'
 import './cart.scss'
-
-const Error = ({ text, closeToast }) => {
-    const html = text.replace(/_(.*?)_/g, '<b>$1</b>')
-
-    return <div onClick={closeToast} dangerouslySetInnerHTML={{__html: html}}></div>
-}
 
 class Cart extends React.Component {
 
@@ -35,36 +28,46 @@ class Cart extends React.Component {
         createOrder: PropTypes.func.isRequired,
         removeFromCart: PropTypes.func.isRequired,
         signOut: PropTypes.func.isRequired,
-        createPayment: PropTypes.func.isRequired,
         cart: PropTypes.arrayOf(PropTypes.object).isRequired,
         user: PropTypes.object
     }
 
     static getInitialProps = async ({ store }) => {
         await store.dispatch(getProducts())
+
         return {}
     }
 
     state = {
         signInVisible: false,
-        createAccountVisible: false
+        createAccountVisible: false,
+        isSubmitting: false
     }
 
     createOrder = () => {
         const { createOrder, cart } = this.props
+        const { isSubmitting } = this.state
+
+        if(isSubmitting) return
 
         const data = {
             currency: 'CZK',
             products: cart
         }
 
+        this.setState({isSubmitting: true})
+
         createOrder(data)
-            .catch(errors => errors.map(error => toast.error(<Error text={error} />)))
+            .then(response => Router.pushRoute(`/order/${response.orderId}`))
+            .catch(errors => {
+                this.setState({isSubmitting: false})
+                errors.map(error => toast.error(<Toast text={error} />))
+            })
     }
 
     render = () => {
-        const { user, signOut, createPayment, cart, products, removeFromCart } = this.props
-        const { signInVisible, createAccountVisible } = this.state
+        const { user, signOut, cart, products, removeFromCart } = this.props
+        const { signInVisible, createAccountVisible, isSubmitting } = this.state
 
         const uniqueProductsInCart = cart.filter((item, index) => {
             const upperCartPart = cart.slice(index + 1, cart.length)
@@ -83,41 +86,49 @@ class Cart extends React.Component {
                         <title>Todo list | Nextbase</title>
                     </Head>
 
+                    <ToastContainer
+                        position="top-right"
+                        autoClose={10000}
+                        closeButton={false}
+                        closeOnClick
+                        draggable
+                    />
+
                     <Header />
 
                     <div className="inner">
+                        <div className="products">
+                            {uniqueProductsInCart.map(item => {
+                                const product = products.find(product => product.id === item.id)
+                                const count = cart.filter(cartItem => cartItem.id === item.id && cartItem.size === item.size).length
 
-                        {uniqueProductsInCart.map(item => {
-                            const product = products.find(product => product.id === item.id)
-                            const count = cart.filter(cartItem => cartItem.id === item.id && cartItem.size === item.size).length
+                                return (
+                                    <div key={item.id + item.size}>
+                                        <div>{product.name} [{item.size}]</div>
+                                        <div>{count}x</div>
+                                        <button onClick={() => removeFromCart(item)}>Remove</button>
+                                    </div>
+                                )
+                            })}
 
-                            return (
-                                <div key={item.id + item.size}>
-                                    <div>{product.name} [{item.size}]</div>
-                                    <div>{count}x</div>
-                                    <button onClick={() => removeFromCart(item)}>Remove</button>
-                                </div>
-                            )
-                        })}
+                            <Button loading={isSubmitting} onClick={this.createOrder}>Create order</Button>
+                        </div>
 
-                        <Button onClick={this.createOrder}>Create order</Button>
-
-                        {!user ? (
-                            <>
-                                <Button onClick={() => this.setState({createAccountVisible: true})}>Create account</Button>
-                                <Button onClick={() => this.setState({signInVisible: true})}>Log in</Button>
-                            </>
-                        ) : (
-                            <>
-                                <Button onClick={() => Router.pushRoute('/admin')}>Manage products</Button>
-                                <Button onClick={() => signOut().catch(console.error)}>Sign out</Button>
-                            </>
-                        )}
+                        <div className="actions">
+                            {!user ? (
+                                <>
+                                    <Button onClick={() => this.setState({createAccountVisible: true})}>Create account</Button>
+                                    <Button onClick={() => this.setState({signInVisible: true})}>Log in</Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button onClick={() => Router.pushRoute('/products')}>Manage products</Button>
+                                    <Button onClick={() => Router.pushRoute('/orders')}>My orders</Button>
+                                    <Button onClick={() => signOut().catch(console.error)}>Sign out</Button>
+                                </>
+                            )}
+                        </div>
                     </div>
-
-                    <Elements>
-                        <CheckoutForm createPayment={createPayment} />
-                    </Elements>
 
                     <Footer />
 
@@ -128,14 +139,6 @@ class Cart extends React.Component {
                     <Modal noPadding visible={createAccountVisible} onClose={() => this.setState({createAccountVisible: false})}>
                         <CreateAccount close={() => this.setState({createAccountVisible: false})} />
                     </Modal>
-
-                    <ToastContainer
-                        position="top-right"
-                        autoClose={false}
-                        closeButton={false}
-                        closeOnClick
-                        draggable
-                    />
                 </div>
             </PageWrapper>
         )
@@ -152,7 +155,6 @@ const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
         signOut,
-        createPayment,
         removeFromCart,
         createOrder
     }, dispatch)

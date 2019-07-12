@@ -4,33 +4,38 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProduct } from '../lib/shop/actions'
+import { getOrder, getProducts } from '../lib/shop/actions'
 import withAuthentication from '../lib/withAuthentication'
 import PageWrapper from '../components/PageWrapper'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import ProductDetail from '../components/products/Product'
-import { ToastContainer } from '../components/Toast'
-import './product.scss'
+import OrderDetail from '../components/orders/Order'
+import './order.scss'
 
-class Product extends React.Component {
+class Order extends React.Component {
 
     static propTypes = {
-        getProduct: PropTypes.func.isRequired
+        getOrder: PropTypes.func.isRequired,
+        getProducts: PropTypes.func.isRequired,
+        order: PropTypes.object.isRequired,
+        products: PropTypes.arrayOf(PropTypes.object).isRequired
     }
 
     static getInitialProps = async ({ store, query }) => {
-        await store.dispatch(getProduct(query.id))
+        await Promise.all([
+            store.dispatch(getOrder(query.id)),
+            store.dispatch(getProducts())
+        ])
 
         return {}
     }
 
     render = () => {
-        const { product } = this.props
+        const { order, products } = this.props
 
         return (
             <PageWrapper>
-                <div className="product-page">
+                <div className="order-page">
 
                     <Head>
                         <meta name="description" content="Minimalistic serverless boilerplate based on NextJS and Firebase" />
@@ -38,17 +43,12 @@ class Product extends React.Component {
                         <title>Todo list | Nextbase</title>
                     </Head>
 
-                    <ToastContainer
-                        position="top-right"
-                        autoClose={3000}
-                        closeButton={false}
-                        closeOnClick
-                        draggable
-                    />
-
                     <Header />
 
-                    <ProductDetail product={product} />
+                    <OrderDetail
+                        order={order}
+                        products={products}
+                    />
 
                     <Footer />
 
@@ -59,14 +59,15 @@ class Product extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    user: state.auth.user,
-    product: state.shop.product
+    order: state.shop.order,
+    products: state.shop.products
 })
 
 const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
-        getProduct
+        getOrder,
+        getProducts
     }, dispatch)
 )
 
-export default compose(withAuthentication(false), connect(mapStateToProps, mapDispatchToProps))(Product)
+export default compose(withAuthentication(false), connect(mapStateToProps, mapDispatchToProps))(Order)

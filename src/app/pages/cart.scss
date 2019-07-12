@@ -8,27 +8,34 @@
     position: relative;
 
     .inner {
-        max-width: 640px;
+
+        max-width: 960px;
         margin: 0 auto;
         padding: 15px;
+
+        @media (min-width: $tablet) {
+            display: flex;
+        }
+
     }
 
-    :global {
+    .actions {
 
-        .Toastify__toast {
-            margin-bottom: .75rem;
-            padding: 10px;
-            font-size: .9em;
-            font-weight: 300;
+        flex: 1;
+
+        @media (min-width: $tablet) {
+            margin: 0 15px;
         }
 
-        .Toastify__toast--error {
-            background: #D45853;
-        }
+    }
 
-        .Toastify__toast-body b {
-            font-size: 1.05em;
-            marign: 0 2px;
+    .products {
+
+        flex: 1;
+        margin-bottom: 50px;
+
+        @media (min-width: $tablet) {
+            margin: 0 15px;
         }
 
     }

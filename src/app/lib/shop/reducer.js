@@ -1,6 +1,7 @@
 import { getLastIndexInCart, removeLastProductInCart } from './actions'
 
 export const initialState = {
+    configs: {},
     filters: {
         men: true,
         women: true,
@@ -11,7 +12,7 @@ export const initialState = {
     cart: [],
     products: [],
     product: null,
-    configs: {}
+    order: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -36,6 +37,11 @@ const reducer = (state = initialState, action) => {
             return {...state, product: null}
         case 'GET_PRODUCT_SUCCESS':
             return {...state, product: action.payload}
+
+        case 'GET_ORDER_REQUEST':
+            return {...state, order: null}
+        case 'GET_ORDER_SUCCESS':
+            return {...state, order: action.payload}
 
         case 'GET_CONFIG_SUCCESS':
             return {...state, configs: {...state.configs, [action.payload.name]: action.payload[action.payload.name]}}

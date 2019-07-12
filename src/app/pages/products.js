@@ -14,14 +14,14 @@ import Footer from '../components/Footer'
 import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
-import ProductAdmin from '../components/admin/ProductAdmin'
+import ProductAdmin from '../components/admin/Products'
 import Button from '../components/common/Button'
 import EditProduct from '../components/admin/EditProduct'
 import Stock from '../components/admin/Stock'
 import ImgMGMT from '../components/admin/ImgMGMT'
-import './admin.scss'
+import './products.scss'
 
-class Admin extends React.Component {
+class Products extends React.Component {
 
     static propTypes = {
         getProducts: PropTypes.func.isRequired,
@@ -31,8 +31,11 @@ class Admin extends React.Component {
     }
 
     static getInitialProps = async ({ store }) => {
-        await store.dispatch(getProducts())
-        await store.dispatch(getConfig('order'))
+        await Promise.all([
+            store.dispatch(getProducts()),
+            store.dispatch(getConfig('order'))
+        ])
+
         return {}
     }
 
@@ -74,7 +77,7 @@ class Admin extends React.Component {
 
         return (
             <PageWrapper>
-                <div className="admin">
+                <div className="products">
 
                     <Head>
                         <meta name="description" content="Minimalistic serverless boilerplate based on NextJS and Firebase" />
@@ -162,7 +165,7 @@ const mapDispatchToProps = (dispatch) => (
     }, dispatch)
 )
 
-export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(Admin)
+export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(Products)
 
 const Confirmation = styled.div`
     h1 {

@@ -82,8 +82,8 @@ const createOrderHandler = (admin) => async (req, res) => {
         uniqueSizes.forEach(size => {
             const requestedQuantity = requestedProducts.filter(product => product.size === size).length
 
-            if(!productDetail.quantity.hasOwnProperty(size)) return errors.push(`_${productDetail.name}_ isn't stocked in size _${size}_`)
-            else if(requestedQuantity > productDetail.quantity[size]) return errors.push(`_${productDetail.name}_ isn't stocked in size _${size}_ in required amount`)
+            if(!productDetail.quantity.hasOwnProperty(size)) return errors.push(`_${productDetail.name}_ (size _${size}_) isn't stocked`)
+            else if(requestedQuantity > productDetail.quantity[size]) return errors.push(`_${productDetail.name}_ (size _${size}_) isn't stocked in required amount`)
 
             if(errors.length) return
 
@@ -111,7 +111,7 @@ const createOrderHandler = (admin) => async (req, res) => {
     Promise
         .all(updatedProducts.map(product => admin.firestore().collection('products').doc(product.id).update(product.data)))
         .then(() => admin.firestore().collection('orders').add(order))
-        .then(docRef => res.send({ success: true, order: docRef.id }))
+        .then(docRef => res.send({ success: true, orderId: docRef.id }))
         .catch(handleError)
 }
 
