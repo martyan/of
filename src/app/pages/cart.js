@@ -28,6 +28,7 @@ class Cart extends React.Component {
         removeFromCart: PropTypes.func.isRequired,
         signOut: PropTypes.func.isRequired,
         createPayment: PropTypes.func.isRequired,
+        cart: PropTypes.arrayOf(PropTypes.object).isRequired,
         user: PropTypes.object
     }
 
@@ -42,9 +43,14 @@ class Cart extends React.Component {
     }
 
     createOrder = () => {
-        const { createOrder } = this.props
+        const { createOrder, cart } = this.props
 
-        createOrder({neco: 'hovno'})
+        const data = {
+            currency: 'CZK',
+            products: cart
+        }
+
+        createOrder(data)
             .catch(console.error)
     }
 
@@ -78,7 +84,7 @@ class Cart extends React.Component {
                             const count = cart.filter(cartItem => cartItem.id === item.id && cartItem.size === item.size).length
 
                             return (
-                                <div key={item.id}>
+                                <div key={item.id + item.size}>
                                     <div>{product.name} [{item.size}]</div>
                                     <div>{count}x</div>
                                     <button onClick={() => removeFromCart(item)}>Remove</button>
