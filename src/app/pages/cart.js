@@ -17,6 +17,8 @@ import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
 import Button from '../components/common/Button'
 import CheckoutForm from '../components/cart/CheckoutForm'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/scss/main.scss'
 import './cart.scss'
 
 class Cart extends React.Component {
@@ -51,7 +53,17 @@ class Cart extends React.Component {
         }
 
         createOrder(data)
-            .catch(console.error)
+            .catch(errors => {
+                errors.map(error => {
+                    toast.error(error, {
+                        position: 'top-right',
+                        autoClose: false,
+                        closeOnClick: true,
+                        draggable: true,
+                        closeButton: false
+                    })
+                })
+            })
     }
 
     render = () => {
@@ -120,6 +132,8 @@ class Cart extends React.Component {
                     <Modal noPadding visible={createAccountVisible} onClose={() => this.setState({createAccountVisible: false})}>
                         <CreateAccount close={() => this.setState({createAccountVisible: false})} />
                     </Modal>
+
+                    <ToastContainer />
                 </div>
             </PageWrapper>
         )
