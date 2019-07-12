@@ -21,6 +21,12 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/scss/main.scss'
 import './cart.scss'
 
+const Error = ({ text, closeToast }) => {
+    const html = text.replace(/_(.*?)_/g, '<b>$1</b>')
+
+    return <div onClick={closeToast} dangerouslySetInnerHTML={{__html: html}}></div>
+}
+
 class Cart extends React.Component {
 
     static propTypes = {
@@ -53,17 +59,7 @@ class Cart extends React.Component {
         }
 
         createOrder(data)
-            .catch(errors => {
-                errors.map(error => {
-                    toast.error(error, {
-                        position: 'top-right',
-                        autoClose: false,
-                        closeOnClick: true,
-                        draggable: true,
-                        closeButton: false
-                    })
-                })
-            })
+            .catch(errors => errors.map(error => toast.error(<Error text={error} />)))
     }
 
     render = () => {
@@ -133,7 +129,13 @@ class Cart extends React.Component {
                         <CreateAccount close={() => this.setState({createAccountVisible: false})} />
                     </Modal>
 
-                    <ToastContainer />
+                    <ToastContainer
+                        position="top-right"
+                        autoClose={false}
+                        closeButton={false}
+                        closeOnClick
+                        draggable
+                    />
                 </div>
             </PageWrapper>
         )

@@ -82,8 +82,8 @@ const createOrderHandler = (admin) => async (req, res) => {
         uniqueSizes.forEach(size => {
             const requestedQuantity = requestedProducts.filter(product => product.size === size).length
 
-            if(!productDetail.quantity.hasOwnProperty(size)) return errors.push(`Product '${productDetail.name}' isn't stocked in size '${size}'`)
-            else if(requestedQuantity > productDetail.quantity[size]) return errors.push(`Product '${productDetail.name}' isn't stocked in size '${size}' in required amount`)
+            if(!productDetail.quantity.hasOwnProperty(size)) return errors.push(`Product _${productDetail.name}_ isn't stocked in size _${size}_`)
+            else if(requestedQuantity > productDetail.quantity[size]) return errors.push(`Product _${productDetail.name}_ isn't stocked in size _${size}_ in required amount`)
 
             if(errors.length) return
 
