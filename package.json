@@ -47,6 +47,7 @@
         "react-flip-move": "^3.0.3",
         "react-ga": "^2.5.7",
         "react-image-gallery": "^0.8.17",
+        "react-images": "^1.0.0",
         "react-photo-gallery": "^7.0.2",
         "react-redux": "^7.0.3",
         "react-responsive-modal": "^4.0.1",

@@ -9,66 +9,89 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import { media } from '../common/variables'
 import sortProducts from '../utils/sortProducts'
+import Carousel, { Modal, ModalGateway } from 'react-images'
 
-const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder, onStock, onManageImgs, onEdit, onDelete }) => (
-    <Product>
-        <Head>
-            <div className="index">{index + 1}</div>
-            <div className="name">{item.name}</div>
-            <div className="price">CZK {item.price}</div>
-        </Head>
+const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder, onStock, onManageImgs, onEdit, onDelete }) => {
+    const [carouselVisible, setCarouselVisible] = useState(false)
+    const [carouselIndex, setCarouselIndex] = useState(0)
 
-        <Category>
-            {item.gender === 'men' && <i className="fa fa-mars"></i>}
-            {item.gender === 'women' && <i className="fa fa-venus"></i>}
-            {item.gender === 'uni' && <i>UNI</i>}
-            <span>{item.category}</span>
-        </Category>
+    const openImageInModal = (imageIndex) => {
+        setCarouselVisible(true)
+        setCarouselIndex(imageIndex)
+    }
 
-        {item.photos.length > 0 && (
-            <Photos>
-                {item.photos.map((photo, i) => <div key={i} className="photo"><img src={photo} /></div>)}
-            </Photos>
-        )}
+    return (
+        <Product>
+            <Head>
+                <div className="index">{index + 1}</div>
+                <div className="name">{item.name}</div>
+                <div className="price">CZK {item.price}</div>
+            </Head>
 
-        <Actions>
-            {reorder ?
-                <button onClick={() => onReorder(!reorder)}>
-                    <i className="fa fa-arrows-v"></i>
-                    <span>Done</span>
-                </button> :
-                <>
-                    <Link to={`/product/${item.id}`}>
-                        <a target="_blank">
-                            <i className="fa fa-external-link"></i>
-                            <span>View</span>
-                        </a>
-                    </Link>
-                    <button onClick={() => onStock(item.id)}>
-                        <i className="fa fa-cart-plus"></i>
-                        <span>Stock</span>
-                    </button>
-                    <button onClick={() => onManageImgs(item.id)}>
-                        <i className="fa fa-picture-o"></i>
-                        <span>Photos</span>
-                    </button>
-                    <button onClick={() => onEdit(item.id)}>
-                        <i className="fa fa-pencil"></i>
-                        <span>Edit</span>
-                    </button>
-                    <button onClick={() => onDelete(item.id)}>
-                        <i className="fa fa-trash"></i>
-                        <span>Delete</span>
-                    </button>
+            <Category>
+                {item.gender === 'men' && <i className="fa fa-mars"></i>}
+                {item.gender === 'women' && <i className="fa fa-venus"></i>}
+                {item.gender === 'uni' && <i>UNI</i>}
+                <span>{item.category}</span>
+            </Category>
+
+            {item.photos.length > 0 && (
+                <div>
+                    <Photos>
+                        {item.photos.map((photo, i) => <div key={i} className="photo" onClick={() => openImageInModal(i)}><img src={photo} /></div>)}
+                    </Photos>
+                    <ModalGateway>
+                        {carouselVisible ? (
+                            <Modal onClose={() => setCarouselVisible(false)}>
+                                <Carousel
+                                    currentIndex={carouselIndex}
+                                    views={item.photos.map(photo => ({source: photo}))}
+                                />
+                            </Modal>
+                        ) : null}
+                    </ModalGateway>
+                </div>
+            )}
+
+            <Actions>
+                {reorder ?
                     <button onClick={() => onReorder(!reorder)}>
                         <i className="fa fa-arrows-v"></i>
-                        <span>Reorder</span>
-                    </button>
-                </>
-            }
-        </Actions>
-    </Product>
-))
+                        <span>Done</span>
+                    </button> :
+                    <>
+                        <Link to={`/product/${item.id}`}>
+                            <a target="_blank">
+                                <i className="fa fa-external-link"></i>
+                                <span>View</span>
+                            </a>
+                        </Link>
+                        <button onClick={() => onStock(item.id)}>
+                            <i className="fa fa-cart-plus"></i>
+                            <span>Stock</span>
+                        </button>
+                        <button onClick={() => onManageImgs(item.id)}>
+                            <i className="fa fa-picture-o"></i>
+                            <span>Photos</span>
+                        </button>
+                        <button onClick={() => onEdit(item.id)}>
+                            <i className="fa fa-pencil"></i>
+                            <span>Edit</span>
+                        </button>
+                        <button onClick={() => onDelete(item.id)}>
+                            <i className="fa fa-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                        <button onClick={() => onReorder(!reorder)}>
+                            <i className="fa fa-arrows-v"></i>
+                            <span>Reorder</span>
+                        </button>
+                    </>
+                }
+            </Actions>
+        </Product>
+    )
+})
 
 const SortableList = SortableContainer(({ items, ...props }) => (
     <div>
