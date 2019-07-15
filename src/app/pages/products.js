@@ -19,7 +19,7 @@ import Button from '../components/common/Button'
 import EditProduct from '../components/admin/EditProduct'
 import Stock from '../components/admin/Stock'
 import ImgMGMT from '../components/admin/ImgMGMT'
-import '../components/common/global.scss'
+
 
 class ProductsPage extends React.Component {
 

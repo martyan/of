@@ -8,6 +8,7 @@ import { StripeProvider } from 'react-stripe-elements'
 import Router from 'next/dist/client/router'
 import { PageTransition } from 'next-page-transitions'
 import { setCart } from '../lib/shop/actions'
+import '../components/common/global.scss'
 
 const theme = {
     colors: {
