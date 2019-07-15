@@ -230,11 +230,11 @@ const Product = styled.div`
     }
     
     .desc {
-        padding: 15px 10px;
+        padding: 15px 10px 5px;
         flex: 1;
         
         ${media.tablet} {
-            padding: 15px;
+            padding: 15px 15px 5px;
         }
     }
     
@@ -281,16 +281,14 @@ const Category = styled.div`
 
 const Stock = styled.div`
     display: flex;    
-    margin-top: 15px;
+    margin-top: 20px;
     justify-content: flex-end;
+    flex-wrap: wrap;
     
     .size {
-        margin-right: 15px;
+        margin-left: 15px;
+        margin-bottom: 15px;
         
-        &:last-child {
-            margin-right: 0;
-        }
-    
         .label {
             font-weight: 300;
             color: #222;
