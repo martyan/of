@@ -14,7 +14,7 @@ import Footer from '../components/Footer'
 import Modal from '../components/common/Modal'
 import SignIn from '../components/auth/SignIn'
 import CreateAccount from '../components/auth/CreateAccount'
-import ProductAdmin from '../components/admin/Products'
+import ProductsAdmin from '../components/admin/ProductsAdmin'
 import Button from '../components/common/Button'
 import EditProduct from '../components/admin/EditProduct'
 import Stock from '../components/admin/Stock'
@@ -90,7 +90,7 @@ class ProductsPage extends React.Component {
                     <div className="inner">
                         <Button onClick={() => this.setState({addProductVisible: true})}>Add product</Button>
 
-                        <ProductAdmin
+                        <ProductsAdmin
                             products={products}
                             onEdit={productId => this.setState({editProductVisible: true, productId})}
                             onManageImgs={productId => this.setState({imgMGMTVisible: true, productId})}

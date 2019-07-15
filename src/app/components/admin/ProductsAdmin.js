@@ -115,7 +115,7 @@ const SortableList = SortableContainer(({ items, ...props }) => (
     </div>
 ))
 
-const Products = ({ products, onEdit, onDelete, onManageImgs, onStock, updateConfig, getConfig, configs }) => {
+const ProductsAdmin = ({ products, onEdit, onDelete, onManageImgs, onStock, updateConfig, getConfig, configs }) => {
     const [items, setItems] = useState([])
     const [reorder, setReorder] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -165,7 +165,7 @@ const Products = ({ products, onEdit, onDelete, onManageImgs, onStock, updateCon
     )
 }
 
-Products.propTypes = {
+ProductsAdmin.propTypes = {
     updateConfig: PropTypes.func.isRequired,
     getConfig: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
@@ -185,7 +185,7 @@ const mapDispatchToProps = (dispatch) => (
     }, dispatch)
 )
 
-export default connect(mapStateToProps, mapDispatchToProps)(Products)
+export default connect(mapStateToProps, mapDispatchToProps)(ProductsAdmin)
 
 const Product = styled.div`
     display: flex;
