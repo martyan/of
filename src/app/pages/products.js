@@ -19,7 +19,7 @@ import Button from '../components/common/Button'
 import EditProduct from '../components/admin/EditProduct'
 import Stock from '../components/admin/Stock'
 import ImgMGMT from '../components/admin/ImgMGMT'
-import './products.scss'
+import '../components/common/global.scss'
 
 class Products extends React.Component {
 
@@ -77,7 +77,7 @@ class Products extends React.Component {
 
         return (
             <PageWrapper>
-                <div className="products">
+                <Container>
 
                     <Head>
                         <meta name="description" content="Minimalistic serverless boilerplate based on NextJS and Firebase" />
@@ -145,7 +145,7 @@ class Products extends React.Component {
                     <Modal noPadding visible={createAccountVisible} onClose={() => this.setState({createAccountVisible: false})}>
                         <CreateAccount close={() => this.setState({createAccountVisible: false})} />
                     </Modal>
-                </div>
+                </Container>
             </PageWrapper>
         )
     }
@@ -166,6 +166,19 @@ const mapDispatchToProps = (dispatch) => (
 )
 
 export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(Products)
+
+const Container = styled.div`
+    min-height: 100vh;
+    padding-bottom: 100px;
+    position: relative;
+    background: #f5f5f5;
+
+    .inner {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 15px;
+    }
+`
 
 const Confirmation = styled.div`
     h1 {

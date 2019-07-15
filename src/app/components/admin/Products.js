@@ -223,8 +223,8 @@ const Product = styled.div`
             height: 100%;
             opacity: .8;
             margin-right: 5px;
-            background-position: 50% 50%;
             background-size: cover;
+            background: no-repeat 50% 50%;
         }
     
     }
@@ -302,11 +302,12 @@ const Stock = styled.div`
         .value {
             padding: 1px 6px;
             background: #444;
-            color: #ddd;
+            color: #eee;
             font-size: .95em;
             
             &.red {
                 background: indianred;
+                color: white;
             }
         }
     }

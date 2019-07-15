@@ -1,5 +1,6 @@
-import React, { Component, useEffect } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
 import { Router } from '../../../functions/routes'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -7,7 +8,8 @@ import { setFilter } from '../../lib/shop/actions'
 import FlipMove from 'react-flip-move'
 import Check from '../common/Check'
 import sortProducts from '../utils/sortProducts'
-import './ProductList.scss'
+import { media } from '../common/variables'
+
 
 const ProductList = ({ products, filters, setFilter, configs }) => {
     const { men, women, tshirt, sweatshirt, skateboard } = filters
@@ -39,8 +41,8 @@ const ProductList = ({ products, filters, setFilter, configs }) => {
     const sorted = sortProducts(filtered, configs.order)
 
     return (
-        <div className="product-list">
-            <div className="filters">
+        <Container>
+            <Filters>
                 <div className="category">
                     <label className="filter">
                         <Check onChange={e => toggleFilter('men', 'women')} checked={men} />
@@ -68,18 +70,13 @@ const ProductList = ({ products, filters, setFilter, configs }) => {
                         <span>Skate</span>
                     </label>
                 </div>
-            </div>
+            </Filters>
 
-            <div className="products">
+            <Products>
                 <FlipMove>
                     {sorted.map(product => (
                         <div key={product.id} className="product" onClick={() => handleProductClick(product.id)}>
-                            <div className="photo">
-                                {product.photos.length > 0 ?
-                                    <img src={product.photos[0]} alt={product.name} /> :
-                                    <img src="https://via.placeholder.com/900x1146/eee" />
-                                }
-                            </div>
+                            <div className="photo" style={{backgroundImage: `url(${product.photos.length > 0 ? product.photos[0] : 'https://via.placeholder.com/900x1146/eee'})`}}></div>
                             <div className="caption">
                                 <div className="name">{product.name}</div>
                                 <div className="price">CZK {product.price}</div>
@@ -88,8 +85,8 @@ const ProductList = ({ products, filters, setFilter, configs }) => {
                     ))}
                     {sorted.length === 0 && <div className="nada">¯\_(ツ)_/¯</div>}
                 </FlipMove>
-            </div>
-        </div>
+            </Products>
+        </Container>
     )
 }
 
@@ -111,3 +108,137 @@ const mapDispatchToProps = (dispatch) => (
 )
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProductList)
+
+
+const Container = styled.div`
+    max-width: 1280px;
+    margin: 0 auto;
+`
+
+const Filters = styled.div`
+    max-width: 640px;
+    margin: 0 auto 50px;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+
+    ${media.tablet} {
+        display: flex;
+        justify-content: center;
+        padding: 50px 0;
+    }
+
+    .category {
+        display: flex;
+        padding: 0 15px;
+        border-right: 1px solid #eee;
+
+        &:last-child {
+            border-right: 0;
+        }
+    }
+
+    .filter {
+        flex: 1;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        font-size: .95em;
+        color: #444;
+        padding: 10px;
+        cursor: pointer;
+        user-select: none;
+
+        ${media.tablet} {
+            justify-content: center;
+            padding: 15px;
+        }
+        
+        span {
+            flex-basis: 100px;
+        }
+    }
+`
+
+const Products = styled.div`
+    max-width: 1280px;
+    margin: 0 auto;
+
+    & > div {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .nada {
+        display: flex;
+        align-items: center;
+        height: 240px;
+        padding: 25px;
+        font-size: 1.1em;
+        font-weight: 300;
+        color: #ccc;
+        text-align: center;
+
+        ${media.tablet} {
+            height: 360px;
+            padding: 50px 15px;
+            font-size: 1.3em;
+        }
+    }
+
+    .product {
+        width: 100%;
+        max-width: 320px;
+        margin: 0 10px 50px;
+        cursor: pointer;
+        user-select: none;
+
+        @media (min-width: 500px) {
+            width: 300px;
+        }
+
+        ${media.tablet} {
+            margin: 0 25px 50px;
+
+            &:hover .photo {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        .photo {
+            width: 100%;
+            height: 382px;
+            background-size: cover;
+            background: no-repeat 50% 50%;
+            transform-origin: 50% 100%;
+            transition: transform .3s ease, opacity .3s ease;
+
+            ${media.tablet} {
+                opacity: .85;
+            }
+
+            img {
+                height: 100%;
+            }
+        }
+
+        .caption {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            color: #444;
+            
+            .name {
+                font-size: 1.1em;
+                font-weight: 300;
+                letter-spacing: 1px;
+            }
+
+            .price {
+                flex-basis: 100px;
+                text-align: right;
+            }
+        }
+    }
+`
