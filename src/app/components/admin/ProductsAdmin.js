@@ -224,7 +224,6 @@ const Product = styled.div`
             opacity: .8;
             margin-right: 5px;
             background-size: cover;
-            background: no-repeat 50% 50%;
         }
     
     }
