@@ -21,7 +21,7 @@ import Stock from '../components/admin/Stock'
 import ImgMGMT from '../components/admin/ImgMGMT'
 import '../components/common/global.scss'
 
-class Products extends React.Component {
+class ProductsPage extends React.Component {
 
     static propTypes = {
         getProducts: PropTypes.func.isRequired,
@@ -165,7 +165,8 @@ const mapDispatchToProps = (dispatch) => (
     }, dispatch)
 )
 
-export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(Products)
+export default compose(withAuthentication(true), connect(mapStateToProps, mapDispatchToProps))(ProductsPage)
+
 
 const Container = styled.div`
     min-height: 100vh;

@@ -2,7 +2,7 @@
 
     .Toastify__toast {
         margin-bottom: .75rem;
-        padding: 10px;
+        padding: 15px;
         font-size: .9em;
         font-weight: 300;
     }
@@ -19,6 +19,10 @@
     .Toastify__toast-body b {
         font-size: 1.05em;
         marign: 0 2px;
+    }
+
+    .Toastify__progress-bar {
+        height: 3px;
     }
 
 }

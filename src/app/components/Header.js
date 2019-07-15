@@ -111,6 +111,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(Header)
 
 
 const Wrapper = styled.header`
+    background: white;
+
     ${media.tablet} {
         border-bottom: 1px solid #eee;
     }
@@ -211,10 +213,10 @@ const Count = styled.span`
     right: -2px;
     width: 15px;
     height: 15px;
-    line-height: 16px;
+    line-height: 15px;
     background: indianred;
     color: white;
-    font-size: .65em;
-    font-weight: 600;
+    font-size: .6em;
+    font-weight: 300;
     border-radius: 50%;
 `

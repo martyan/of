@@ -4,7 +4,7 @@ import Head from 'next/head'
 import compose from 'recompose/compose'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { getProducts, removeFromCart, createOrder } from '../lib/shop/actions'
+import { getProducts, removeFromCart, createOrder, addToCart } from '../lib/shop/actions'
 import { signOut } from '../lib/auth/actions'
 import withAuthentication from '../lib/withAuthentication'
 import { Router } from '../../functions/routes'
@@ -26,6 +26,7 @@ class Cart extends React.Component {
         getProducts: PropTypes.func.isRequired,
         products: PropTypes.arrayOf(PropTypes.object).isRequired,
         createOrder: PropTypes.func.isRequired,
+        addToCart: PropTypes.func.isRequired,
         removeFromCart: PropTypes.func.isRequired,
         signOut: PropTypes.func.isRequired,
         cart: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -66,15 +67,11 @@ class Cart extends React.Component {
     }
 
     render = () => {
-        const { user, signOut, cart, products, removeFromCart } = this.props
+        const { user, signOut, cart, products, removeFromCart, addToCart } = this.props
         const { signInVisible, createAccountVisible, isSubmitting } = this.state
 
-        const uniqueProductsInCart = cart.filter((item, index) => {
-            const upperCartPart = cart.slice(index + 1, cart.length)
-            const anotherItemInCart = upperCartPart.find(anotherItem => (anotherItem.id === item.id && anotherItem.size === item.size))
-
-            return !anotherItemInCart
-        })
+        const uniqueKeys = cart.map(product => `${product.id}_${product.size}`)
+        const uniqueProducts = [...new Set(uniqueKeys)].map(key => ({id: key.split('_')[0], size: key.split('_')[1]}))
 
         return (
             <PageWrapper>
@@ -98,14 +95,16 @@ class Cart extends React.Component {
 
                     <div className="inner">
                         <div className="products">
-                            {uniqueProductsInCart.map(item => {
+                            {uniqueProducts.map(item => {
                                 const product = products.find(product => product.id === item.id)
                                 const count = cart.filter(cartItem => cartItem.id === item.id && cartItem.size === item.size).length
 
                                 return (
-                                    <div key={item.id + item.size}>
-                                        <div>{product.name} [{item.size}]</div>
+                                    <div key={item.id + item.size} className="product">
+                                        <a href={`/product/${product.id}`} target="_blank"><i className="fa fa-external-link"></i></a>
+                                        <div>{product.name} (size {item.size})</div>
                                         <div>{count}x</div>
+                                        <button onClick={() => addToCart({id: product.id, size: item.size})}>Add</button>
                                         <button onClick={() => removeFromCart(item)}>Remove</button>
                                     </div>
                                 )
@@ -155,6 +154,7 @@ const mapDispatchToProps = (dispatch) => (
     bindActionCreators({
         getProducts,
         signOut,
+        addToCart,
         removeFromCart,
         createOrder
     }, dispatch)
