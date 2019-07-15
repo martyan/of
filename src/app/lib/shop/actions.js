@@ -97,12 +97,17 @@ export const getOrder = (orderId) => ({
     payload: db.collection('orders').doc(orderId).get()
 })
 
-export const createInvoicing = (invoicing) => ({
-    type: 'CREATE_INVOICING',
-    payload: db.collection('invoicing').add(invoicing)
-})
-
 export const getOrders = () => ({
     type: 'GET_ORDERS',
     payload: db.collection('orders').orderBy('createdAt', 'desc').get()
+})
+
+export const deleteOrder = (orderId) => ({
+    type: 'DELETE_ORDER',
+    payload: db.collection('orders').doc(orderId).delete()
+})
+
+export const createInvoicing = (invoicing) => ({
+    type: 'CREATE_INVOICING',
+    payload: db.collection('invoicing').add(invoicing)
 })

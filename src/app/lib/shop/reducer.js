@@ -12,6 +12,7 @@ export const initialState = {
     cart: [],
     products: [],
     product: null,
+    orders: [],
     order: null
 }
 
@@ -37,6 +38,9 @@ const reducer = (state = initialState, action) => {
             return {...state, product: null}
         case 'GET_PRODUCT_SUCCESS':
             return {...state, product: action.payload}
+
+        case 'GET_ORDERS_SUCCESS':
+            return {...state, orders: action.payload}
 
         case 'GET_ORDER_REQUEST':
             return {...state, order: null}

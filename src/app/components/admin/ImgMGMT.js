@@ -122,6 +122,7 @@ const ImgMGMT = ({ product, close, updateProduct, getProducts }) => {
                 <ImgUpload
                     path={`products/${product.id}`}
                     onCompleted={updateProductPhotos}
+                    autoPopup
                 />
             </Modal>
         </div>
@@ -177,7 +178,7 @@ const Add = styled.li`
     color: #222;
     font-weight: 300;
     font-size: 3em;
-    border: 2px solid transparent;
+    border: 3px dashed transparent;
     cursor: pointer;
     transition: .2s ease;
     

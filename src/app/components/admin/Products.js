@@ -10,85 +10,93 @@ import arrayMove from 'array-move'
 import { media } from '../common/variables'
 import sortProducts from '../utils/sortProducts'
 import Carousel, { Modal, ModalGateway } from 'react-images'
+import { getSizes } from './Stock'
 
 const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder, onStock, onManageImgs, onEdit, onDelete }) => {
     const [carouselVisible, setCarouselVisible] = useState(false)
-    const [carouselIndex, setCarouselIndex] = useState(0)
 
-    const openImageInModal = (imageIndex) => {
-        setCarouselVisible(true)
-        setCarouselIndex(imageIndex)
-    }
+    const sizes = getSizes(item.category)
 
     return (
         <Product>
-            <Head>
-                <div className="index">{index + 1}</div>
-                <div className="name">{item.name}</div>
-                <div className="price">CZK {item.price}</div>
-            </Head>
+            <div className="index">{index + 1}</div>
 
-            <Category>
-                {item.gender === 'men' && <i className="fa fa-mars"></i>}
-                {item.gender === 'women' && <i className="fa fa-venus"></i>}
-                {item.gender === 'uni' && <i>UNI</i>}
-                <span>{item.category}</span>
-            </Category>
+            <div className="photo-wrapper" onClick={() => item.photos.length === 0 && onManageImgs(item.id)}>
+                {item.photos.length > 0 && (
+                    <div
+                        className="photo"
+                        onClick={() => setCarouselVisible(true)}
+                        style={{backgroundImage: `url('${item.photos[0]}')`}}
+                    ></div>
+                )}
+                <ModalGateway>
+                    {carouselVisible ? (
+                        <Modal onClose={() => setCarouselVisible(false)}>
+                            <Carousel views={item.photos.map(photo => ({source: photo}))} />
+                        </Modal>
+                    ) : null}
+                </ModalGateway>
+            </div>
 
-            {item.photos.length > 0 && (
-                <div>
-                    <Photos>
-                        {item.photos.map((photo, i) => <div key={i} className="photo" onClick={() => openImageInModal(i)}><img src={photo} /></div>)}
-                    </Photos>
-                    <ModalGateway>
-                        {carouselVisible ? (
-                            <Modal onClose={() => setCarouselVisible(false)}>
-                                <Carousel
-                                    currentIndex={carouselIndex}
-                                    views={item.photos.map(photo => ({source: photo}))}
-                                />
-                            </Modal>
-                        ) : null}
-                    </ModalGateway>
-                </div>
-            )}
+            <div className="desc">
+                <Head>
+                    <div className="name">{item.name}</div>
+                    <div className="price">CZK {item.price}</div>
+                </Head>
 
-            <Actions>
-                {reorder ?
-                    <button onClick={() => onReorder(!reorder)}>
-                        <i className="fa fa-arrows-v"></i>
-                        <span>Done</span>
-                    </button> :
-                    <>
-                        <Link to={`/product/${item.id}`}>
-                            <a target="_blank">
-                                <i className="fa fa-external-link"></i>
-                                <span>View</span>
-                            </a>
-                        </Link>
-                        <button onClick={() => onStock(item.id)}>
-                            <i className="fa fa-cart-plus"></i>
-                            <span>Stock</span>
-                        </button>
-                        <button onClick={() => onManageImgs(item.id)}>
-                            <i className="fa fa-picture-o"></i>
-                            <span>Photos</span>
-                        </button>
-                        <button onClick={() => onEdit(item.id)}>
-                            <i className="fa fa-pencil"></i>
-                            <span>Edit</span>
-                        </button>
-                        <button onClick={() => onDelete(item.id)}>
-                            <i className="fa fa-trash"></i>
-                            <span>Delete</span>
-                        </button>
+                <Category>
+                    {item.gender === 'men' && <i className="fa fa-mars"></i>}
+                    {item.gender === 'women' && <i className="fa fa-venus"></i>}
+                    {item.gender === 'uni' && <i>UNI</i>}
+                    <span>{item.category}</span>
+                </Category>
+
+                <Stock>
+                    {sizes.map(size => (
+                        <div key={size.value} className="size">
+                            <span className="label">{size.label}</span>
+                            <span className={item.quantity[size.value] === 0 ? 'value red' : 'value'}>{item.quantity[size.value]}</span>
+                        </div>
+                    ))}
+                </Stock>
+
+                <Actions>
+                    {reorder ?
                         <button onClick={() => onReorder(!reorder)}>
                             <i className="fa fa-arrows-v"></i>
-                            <span>Reorder</span>
-                        </button>
-                    </>
-                }
-            </Actions>
+                            <span>Done</span>
+                        </button> :
+                        <>
+                            <Link to={`/product/${item.id}`}>
+                                <a target="_blank">
+                                    <i className="fa fa-external-link"></i>
+                                    <span>View</span>
+                                </a>
+                            </Link>
+                            <button onClick={() => onStock(item.id)}>
+                                <i className="fa fa-cart-plus"></i>
+                                <span>Stock</span>
+                            </button>
+                            <button onClick={() => onManageImgs(item.id)}>
+                                <i className="fa fa-picture-o"></i>
+                                <span>Photos</span>
+                            </button>
+                            <button onClick={() => onEdit(item.id)}>
+                                <i className="fa fa-pencil"></i>
+                                <span>Edit</span>
+                            </button>
+                            <button onClick={() => onDelete(item.id)}>
+                                <i className="fa fa-trash"></i>
+                                <span>Delete</span>
+                            </button>
+                            <button onClick={() => onReorder(!reorder)}>
+                                <i className="fa fa-arrows-v"></i>
+                                <span>Reorder</span>
+                            </button>
+                        </>
+                    }
+                </Actions>
+            </div>
         </Product>
     )
 })
@@ -179,18 +187,62 @@ const mapDispatchToProps = (dispatch) => (
 
 export default connect(mapStateToProps, mapDispatchToProps)(Products)
 
-
 const Product = styled.div`
+    display: flex;
+    position: relative;
     background: white;
-    padding: 15px;
     border: 1px solid #eee;
-    margin-bottom: 20px;
+    margin-bottom: 80px;
+    
+    .index {
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        z-index: 1;
+        width: 20px;
+        height: 20px;
+        color: white;
+        font-size: .7em;
+        font-weight: 300;
+        border-radius: 50%;
+        opacity: .9;
+        text-shadow: 0 0 10px black;
+    }
+    
+    .photo-wrapper {
+        flex-basis: 90px;
+        flex-shrink: 0;
+        background: #eee;
+        
+        ${media.tablet} {
+            flex-basis: 130px;
+        }
+        
+        .photo {
+            width: 100%;
+            height: 100%;
+            opacity: .8;
+            margin-right: 5px;
+            background-position: 50% 50%;
+            background-size: cover;
+        }
+    
+    }
+    
+    .desc {
+        padding: 15px 10px;
+        flex: 1;
+        
+        ${media.tablet} {
+            padding: 15px;
+        }
+    }
+    
 `
 
 const Head = styled.div`
     display: flex;
     align-items: center;
-    margin-bottom: 5px;
 
     .index {
         flex-basis: 20px;
@@ -206,7 +258,11 @@ const Head = styled.div`
 
     .price {
         font-weight: 300;
-        font-size: .95em;
+        font-size: .9em;
+        
+        ${media.tablet} {
+            font-size: 1em;
+        }
     }
 `
 
@@ -214,6 +270,7 @@ const Category = styled.div`
     font-weight: 300;
     color: #888;
     font-size: .95em;
+    margin-top: 10px;
 
     i {
         width: 20px;
@@ -222,25 +279,66 @@ const Category = styled.div`
     }
 `
 
+const Stock = styled.div`
+    display: flex;    
+    margin-top: 15px;
+    justify-content: flex-end;
+    
+    .size {
+        margin-right: 15px;
+        
+        &:last-child {
+            margin-right: 0;
+        }
+    
+        .label {
+            font-weight: 300;
+            color: #222;
+            padding: 4px;
+            font-size: .85em;
+            border: 1px solid #ddd;
+        }
+        
+        .value {
+            padding: 1px 6px;
+            background: #444;
+            color: #ddd;
+            font-size: .95em;
+            
+            &.red {
+                background: indianred;
+            }
+        }
+    }
+`
+
 const Actions = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: flex-end;
-    margin-top: 20px;
-
+    margin-top: 15px;
+    overflow-x: auto;
+    user-select: none;
+    
     button, a {
+        flex: 1;
+        flex-grow: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-right: 10px;
+        margin-right: 6px;
         background: transparent;
         text-decoration: none;
         border: 0;
         color: #ccc;
         cursor: pointer;
         transition: .1s ease;
-
+        
         ${media.tablet} {
-            color: #ddd;
+            margin-right: 10px;
         }
 
         &:last-child {
@@ -252,8 +350,11 @@ const Actions = styled.div`
         }
 
         i {
-            font-size: 1.2em;
             margin-bottom: 3px;
+            
+            ${media.tablet} {
+                font-size: 1.2em;
+            }
         }
 
         span {
@@ -261,24 +362,5 @@ const Actions = styled.div`
             max-width: 66px;
             text-align: center;
         }
-    }
-`
-
-const Photos = styled.div`
-    display: flex;
-    align-items: center;
-    overflow-x: auto;
-    overflow-y: hidden;
-    margin-top: 20px;
-
-    .photo {
-
-        opacity: .8;
-        margin-right: 5px;
-
-        img {
-            height: 100px;
-        }
-
     }
 `

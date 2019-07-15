@@ -22,6 +22,7 @@ const EditProduct = ({ product, close, createProduct, updateProduct, getProducts
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [quantity, setQuantity] = useState({})
+    const [sold, setSold] = useState({})
     const [gender, setGender] = useState('')
     const [price, setPrice] = useState('')
 
@@ -36,7 +37,6 @@ const EditProduct = ({ product, close, createProduct, updateProduct, getProducts
             setCategory(getCategoryOptions().find(option => option.value === product.category))
             setName(product.name)
             setDescription(product.description)
-            setQuantity(product.quantity)
             setGender(product.gender)
             setPrice(String(product.price))
         }
@@ -50,6 +50,7 @@ const EditProduct = ({ product, close, createProduct, updateProduct, getProducts
 
         setCategory(category)
         setQuantity(updatedQuantity)
+        setSold(updatedQuantity)
     }
 
     const handleSubmit = (e) => {
@@ -60,13 +61,14 @@ const EditProduct = ({ product, close, createProduct, updateProduct, getProducts
         const data = {
             name,
             description,
-            quantity,
             gender,
             price: parseInt(price)
         }
 
         if(!isEditing) {
             data.category = category.value
+            data.quantity = quantity
+            data.sold = sold
             data.photos = []
             data.createdAt = firebase.firestore.Timestamp.fromDate(new Date())
         }

@@ -91,6 +91,10 @@ const createOrderHandler = (admin) => async (req, res) => {
                 quantity: {
                     ...productDetail.quantity,
                     [size]: productDetail.quantity[size] - requestedQuantity
+                },
+                sold: {
+                    ...productDetail.sold,
+                    [size]: productDetail.sold[size] + requestedQuantity
                 }
             }
 
