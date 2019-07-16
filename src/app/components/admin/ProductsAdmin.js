@@ -29,6 +29,7 @@ const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder
                         style={{backgroundImage: `url('${item.photos[0]}')`}}
                     ></div>
                 )}
+
                 <ModalGateway>
                     {carouselVisible ? (
                         <Modal onClose={() => setCarouselVisible(false)}>
@@ -36,6 +37,10 @@ const SortableItem = SortableElement(({ item, index, loading, reorder, onReorder
                         </Modal>
                     ) : null}
                 </ModalGateway>
+
+                <div className="photo-count">
+                    {item.photos.length} {item.photos.length === 1 ? 'photo' : 'photos'}
+                </div>
             </div>
 
             <div className="desc">
@@ -196,26 +201,35 @@ const Product = styled.div`
     
     .index {
         position: absolute;
-        left: 3px;
-        top: 3px;
+        left: 0;
+        top: 0;
         z-index: 1;
-        width: 20px;
-        height: 20px;
         color: white;
+        background: #444;
+        padding: 3px 4px;
         font-size: .7em;
         font-weight: 300;
-        border-radius: 50%;
-        opacity: .9;
-        text-shadow: 0 0 10px black;
     }
     
     .photo-wrapper {
+        position: relative;
         flex-basis: 90px;
         flex-shrink: 0;
         background: #eee;
         
         ${media.tablet} {
             flex-basis: 130px;
+        }
+        
+        .photo-count {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding: 3px;
+            font-size: .7em;
+            font-weight: 300;
+            color: white;
+            background: #444;
         }
         
         .photo {
@@ -225,7 +239,6 @@ const Product = styled.div`
             margin-right: 5px;
             background-size: cover;
         }
-    
     }
     
     .desc {
